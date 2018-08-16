@@ -1,0 +1,35 @@
+ul {
+  list-style-type: none;
+}
+
+p.max-lines {
+  text-overflow: ellipsis;
+  /* word-wrap: break-word; */
+  overflow: hidden;
+  max-height: 7em;
+  line-height: 1.4em;
+}
+
+.top-to-nav {
+    margin-top: 70px;
+}
+
+/* div.row-flex {
+    display:flex;
+    flex-wrap: wrap;
+} */
+
+hr.style-six {
+    border: 0;
+    height: 0;
+    border-top: 1px solid rgba(0, 0, 0, 0.1);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+}
+
+.new-form {
+    width: 35%;
+}
+
+.addable {
+    margin-bottom: 10px;
+}
