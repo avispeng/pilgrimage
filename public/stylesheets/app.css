@@ -30,6 +30,6 @@ hr.style-six {
     width: 35%;
 }
 
-.addable {
-    margin-bottom: 10px;
+.addable, .added {
+    margin-bottom: 5px;
 }

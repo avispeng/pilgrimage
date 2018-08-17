@@ -131,4 +131,30 @@ router.get("/:id/shows/new", function(req, res) {
 
 });
 
+// Edit
+router.get("/:id/edit", function(req, res) {
+    City.findById(req.params.id).populate("shows").exec(function(err, found) {
+        if(err) {
+            res.redirect("/cities");
+        } else {
+            res.render("cities/edit", {city: found});
+        }
+    });
+});
+
+// update
+router.put("/:id", function(req, res) {
+    // can wrap things up in one object in ejs file
+    // but we have more complicated situation
+    // better handle the array and build a new object
+    // var city = ...
+    City.findByIdAndUpdate(req.params.id, city, function(err, updated) {
+        if(err) {
+            res.redirect("/cities");
+        } else {
+            res.redirect("/cities" + req.params.id);
+        }
+    });
+});
+
 module.exports = router;
