@@ -50,24 +50,12 @@ app.use(function(req, res, next){
 
 var upload = multer({ dest: 'tmp/' });
 
-mongoose.connect("mongodb://localhost/pilgrimage"); // if no db called pilgrimage, create one
+mongoose.connect(process.env.DATABASEURL || "mongodb://localhost/pilgrimage"); // if no db called pilgrimage, create one
 
 app.use("/cities", cityRoutes); // prepend /cities to each route
 app.use(showRoutes);
 app.use(indexRoutes);
 
-
-// app.post("/matching", upload.array(), function(req, res) {
-//     var city = req.body.city;
-//     var show = req.body.show;
-//
-//     res.render("success", {city: city, show: show});
-// });
-//
-// app.get("/matching/new", function(req, res) {
-//     res.render("new.ejs");
-// });
-
-app.listen(3000, "localhost", function() {
+app.listen(process.env.PORT || 3000, process.env.IP || "localhost", function() {
     console.log("The Pilgrimage Server Has Started!");
 });

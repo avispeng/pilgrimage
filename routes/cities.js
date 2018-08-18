@@ -21,33 +21,47 @@ router.get("/", function(req, res) {
 
 // add a new city
 router.post("/", middlewareObj.isLoggedIn, upload.single('image'), function(req, res) {
-    if(!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-        // console.log("wrong file type");
-        req.flash("error", "Invalid file format. Please upload a valid image.");
-        return res.redirect("/new");
-    }
-    var tmpPath = req.file.path;
-    var targetPath = "public/city-images/" + Date.now() + '-' + req.file.originalname;
-    fs.rename(tmpPath, targetPath, function(err) {
-        if(err) {
-            req.flash("error", err.message);
-            return res.redirect("/new");
+    if(!req.file) {
+        var targetPath = "public/default-thumbnail.jpg";
+    } else {
+        if(!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+            // console.log("wrong file type");
+            req.flash("error", "Invalid file format. Please upload a valid image.");
+            return res.redirect("/cities/new");
         }
-        City.create({
-            name: req.body.name,
-            country: req.body.country,
-            imageURL: [targetPath.slice(6)],
-            intro: req.body.intro,
-            // shows: shows
-        }, function(err, city) {
+        var tmpPath = req.file.path;
+        var targetPath = "public/city-images/" + Date.now() + '-' + req.file.originalname;
+        fs.rename(tmpPath, targetPath, function(err) {
             if(err) {
                 req.flash("error", err.message);
-                return res.redirect("/new");
+                // return res.redirect("/cities/new");
             }
-            console.log("city added");
-            // helper function
-            function asyncLoopAddShows(i, cb) {
-                if(i < req.body.show.length) {
+            fs.unlink(tmpPath, function(err) {
+                if(err) {
+                    req.flash("error", err.message);
+                    // return res.redirect("/cities/new");
+                }
+            });
+        });
+    }
+    City.create({
+        name: req.body.name,
+        country: req.body.country,
+        imageURL: [targetPath.slice(6)],
+        intro: req.body.intro,
+        // shows: shows
+    }, function(err, city) {
+        if(err) {
+            req.flash("error", err.message);
+            return res.redirect("/cities/new");
+        }
+        console.log("city added");
+        // helper function
+        function asyncLoopAddShows(i, cb) {
+            if(i < req.body.show.length) {
+                if(req.body.douban[i].length != 8) {
+                    asyncLoopAddShows(i+1, cb);
+                } else {
                     Show.findOne({'douban': req.body.douban[i]}).exec(function(err, show) {
                         if(!show) {
                             console.log("create the new show");
@@ -57,38 +71,30 @@ router.post("/", middlewareObj.isLoggedIn, upload.single('image'), function(req,
                             }, function(err, show) {
                                 if(!err) {
                                     city.shows.push(show["_id"]);
-                                    city.save(function(err, updated) {
-                                        if(err) {
-                                            console.log("update shows to city error");
-                                            return res.render("error", {msg: "update shows to city error"});
-                                        } else {
-                                            console.log("show added");
-                                            asyncLoopAddShows(i+1, cb);
-                                        }
-                                    });
+                                    asyncLoopAddShows(i+1, cb);
                                 }
                             });
                         } else {
                             city.shows.push(show["_id"]);
-                            city.save(function(err, updated) {
-                                if(err) {
-                                    req.flash("error", err.message);
-                                    return res.redirect("/");
-                                } else {
-                                    console.log("show added");
-                                    asyncLoopAddShows(i+1, cb);
-                                }
-                            });
+                            asyncLoopAddShows(i+1, cb);
                         }
                     });
-                } else {
-                    cb();
                 }
+            } else {
+                cb();
             }
+        }
 
-            asyncLoopAddShows(0, function() {
-                req.flash("success", "City added.");
-                res.redirect("/cities/" + city._id);
+        asyncLoopAddShows(0, function() {
+            city.save(function(err, updated) {
+                if(err) {
+                    req.flash("error", err.message);
+                    return res.redirect("/cities");
+                } else {
+                    console.log("shows added");
+                    req.flash("success", "City added.");
+                    res.redirect("/cities/" + city._id);
+                }
             });
         });
     });
@@ -107,7 +113,7 @@ router.get("/results", function(req, res) {
     City.find({name: query}, function(err, cities) {
         if(err) {
             req.flash("error", err.message);
-            res.redirect("/");
+            res.redirect("/cities");
         } else {
             res.render("cities/results", {headline: "Searching Results", cities: cities});
         }
@@ -138,7 +144,7 @@ router.get("/:id/edit", middlewareObj.isLoggedIn, function(req, res) {
     City.findById(req.params.id).populate("shows").exec(function(err, found) {
         if(err) {
             req.flash("error", err.message);
-            res.redirect("/cities");
+            res.redirect("/cities/" + req.params.id);
         } else {
             res.render("cities/edit", {city: found});
         }
@@ -151,10 +157,14 @@ router.put("/:id", middlewareObj.isLoggedIn, function(req, res) {
     // but we have more complicated situation
     // better handle the array and build a new object
     // var city = ...
+    var city = {
+        country: req.body.country,
+        intro: req.body.intro
+    }
     City.findByIdAndUpdate(req.params.id, city, function(err, updated) {
         if(err) {
             req.flash("error", err.message);
-            res.redirect("/cities");
+            res.redirect("/cities" + req.params.id);
         } else {
             res.redirect("/cities" + req.params.id);
         }
