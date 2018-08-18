@@ -1,6 +1,6 @@
 <% include ../partials/header %>
-<div class="container top-to-nav new-form">
-    <div class="row">
+<div class="container new-form">
+    <!-- <div class="row"> -->
         <h1>Edit <%= city.name %></h1>
         <form action="/cities/<%= city._id %>?_method=PUT" method="post" enctype="multipart/form-data">
             <div class="form-group">
@@ -44,14 +44,14 @@
                         <input class="form-control" type="text" name="douban[]" />
                     </div>
                 </div>
-                <button type="button" class="btn btn-default" id="addrow">Add One More</button>
-                <span class="help-block">Douban ID Must be 8 Digits.</span>
+                <button type="button" class="btn btn-secondary" id="addrow">Add One More</button>
+                <small class="form-text text-muted">Douban ID Must be 8 Digits.</small>
             </div>
             <div class="form-group">
                 <button class="btn btn-lg btn-default btn-primary btn-block" type="submit">Submit</button>
             </div>
         </form>
         <a href="/">Go Back</a>
-    </div>
+    <!-- </div> -->
 </div>
 <% include ../partials/footer %>

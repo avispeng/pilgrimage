@@ -4,14 +4,15 @@ var fs = require('fs');
 var multer = require('multer');
 var City = require("../models/city"),
     Show = require("../models/show");
-
+var middlewareObj = require("../middleware");
 var upload = multer({ dest: 'tmp/' });
 
 // grid of all cities
 router.get("/", function(req, res) {
     City.find({}).populate("shows").exec(function(err, cities) {
         if(err) {
-            res.render("error", {msg: "don't find any"});
+            req.flash("error", err.message);
+            res.redirect("/");
         } else {
             res.render("cities/index", {headline: "Popular Cities", cities: cities});
         }
@@ -19,17 +20,18 @@ router.get("/", function(req, res) {
 });
 
 // add a new city
-router.post("/", upload.single('image'), function(req, res) {
+router.post("/", middlewareObj.isLoggedIn, upload.single('image'), function(req, res) {
     if(!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
         // console.log("wrong file type");
-        return res.render("error", {msg: "wrong file type"});
+        req.flash("error", "Invalid file format. Please upload a valid image.");
+        return res.redirect("/new");
     }
     var tmpPath = req.file.path;
     var targetPath = "public/city-images/" + Date.now() + '-' + req.file.originalname;
     fs.rename(tmpPath, targetPath, function(err) {
         if(err) {
-            console.log("filename error");
-            return res.render("error", {msg: "filename error"});
+            req.flash("error", err.message);
+            return res.redirect("/new");
         }
         City.create({
             name: req.body.name,
@@ -39,8 +41,8 @@ router.post("/", upload.single('image'), function(req, res) {
             // shows: shows
         }, function(err, city) {
             if(err) {
-                console.log("adding city error");
-                return res.render("error", {msg: "adding city error"});
+                req.flash("error", err.message);
+                return res.redirect("/new");
             }
             console.log("city added");
             // helper function
@@ -70,8 +72,8 @@ router.post("/", upload.single('image'), function(req, res) {
                             city.shows.push(show["_id"]);
                             city.save(function(err, updated) {
                                 if(err) {
-                                    console.log("update shows to city error");
-                                    return res.render("error", {msg: "update shows to city error"});
+                                    req.flash("error", err.message);
+                                    return res.redirect("/");
                                 } else {
                                     console.log("show added");
                                     asyncLoopAddShows(i+1, cb);
@@ -85,17 +87,15 @@ router.post("/", upload.single('image'), function(req, res) {
             }
 
             asyncLoopAddShows(0, function() {
-                console.log("adding shows done...");
-                res.render("success", {msg: "city added"});
+                req.flash("success", "City added.");
+                res.redirect("/cities/" + city._id);
             });
-
         });
     });
-
 });
 
 // new city form
-router.get("/new", function(req, res) {
+router.get("/new", middlewareObj.isLoggedIn, function(req, res) {
     res.render("cities/new");
 });
 
@@ -106,7 +106,8 @@ router.get("/results", function(req, res) {
     // redirect to cities with result
     City.find({name: query}, function(err, cities) {
         if(err) {
-            res.render("error", {msg: "unknown error"});
+            req.flash("error", err.message);
+            res.redirect("/");
         } else {
             res.render("cities/results", {headline: "Searching Results", cities: cities});
         }
@@ -118,7 +119,8 @@ router.get("/:id", function(req, res) {
     // var id = req.params.id;
     City.findById(req.params.id, function(err, found) {
         if(err) {
-            res.render("error", {msg : "there is no such city"});
+            req.flash("error", err.message);
+            res.redirect("back");
         } else {
             res.render("cities/detail", {city: found});
         }
@@ -132,9 +134,10 @@ router.get("/:id/shows/new", function(req, res) {
 });
 
 // Edit
-router.get("/:id/edit", function(req, res) {
+router.get("/:id/edit", middlewareObj.isLoggedIn, function(req, res) {
     City.findById(req.params.id).populate("shows").exec(function(err, found) {
         if(err) {
+            req.flash("error", err.message);
             res.redirect("/cities");
         } else {
             res.render("cities/edit", {city: found});
@@ -143,13 +146,14 @@ router.get("/:id/edit", function(req, res) {
 });
 
 // update
-router.put("/:id", function(req, res) {
+router.put("/:id", middlewareObj.isLoggedIn, function(req, res) {
     // can wrap things up in one object in ejs file
     // but we have more complicated situation
     // better handle the array and build a new object
     // var city = ...
     City.findByIdAndUpdate(req.params.id, city, function(err, updated) {
         if(err) {
+            req.flash("error", err.message);
             res.redirect("/cities");
         } else {
             res.redirect("/cities" + req.params.id);
