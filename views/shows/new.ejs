@@ -1,0 +1,30 @@
+<% include ../partials/header %>
+<div class="container new-form">
+    <!-- <div class="row"> -->
+        <h1>Add a New Show</h1>
+        <form action="/shows" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="showName">Show Title:</label>
+                <input class="form-control" type="text" name="show[name]" placeholder="Person Of Interest" />
+            </div>
+            <div class="form-group">
+                <label for="showDouban">Douban ID:</label>
+                <input class="form-control" type="text" name="show[douban]" placeholder="5980670" />
+            </div>
+            <div class="form-group">
+              <label for="showImage">Poster of the Show:</label>
+              <input type="file" name="image" accept="image/*">
+              <p class="help-block">Upload a poster of this show.</p>
+            </div>
+            <div class="form-group">
+              <label for="introduction">Introduction:</label>
+              <textarea class="form-control" rows="5" name="show[intro]" placeholder="What is this show about."></textarea>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-lg btn-default btn-primary btn-block" type="submit">Submit</button>
+            </div>
+        </form>
+        <!-- <a href="/back">Go Back</a> -->
+    <!-- </div> -->
+</div>
+<% include ../partials/footer %>

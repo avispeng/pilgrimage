@@ -4,7 +4,7 @@
         <h1>Add a New City</h1>
         <form action="/cities" method="post" enctype="multipart/form-data">
             <div class="form-group">
-                <label for="cityName">City Name:</label>
+                <label for="cityName">City:</label>
                 <input class="form-control" type="text" name="name" placeholder="Toronto" />
             </div>
             <div class="form-group">
@@ -16,8 +16,8 @@
                 <input class="form-control" type="text" name="image" placeholder="Image URL" />
             </div> -->
             <div class="form-group">
-              <label for="cityImage">File Input:</label>
-              <input type="file" id="cityImage" name="image">
+              <label for="cityImage">Picture of the City:</label>
+              <input type="file" id="cityImage" name="image" accept="image/*">
               <p class="help-block">Upload a good picture of this city.</p>
             </div>
             <div class="form-group">
@@ -35,13 +35,13 @@
                     </div>
                 </div>
                 <button type="button" class="btn btn-secondary" id="addrow">Add One More</button>
-                <small class="form-text text-muted">Douban ID Must be 8 Digits.</small>
+                <small class="form-text text-muted">Douban ID Must be 7 - 8 Digits.</small>
             </div>
             <div class="form-group">
                 <button class="btn btn-lg btn-default btn-primary btn-block" type="submit">Submit</button>
             </div>
         </form>
-        <p><a href="/">Go Back</a></p>
+        <!-- <a href="/back">Go Back</a> -->
     <!-- </div> -->
 </div>
 <% include ../partials/footer %>

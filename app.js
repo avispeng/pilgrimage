@@ -52,7 +52,8 @@ var upload = multer({ dest: 'tmp/' });
 
 mongoose.connect(process.env.DATABASEURL || "mongodb://localhost/pilgrimage"); // if no db called pilgrimage, create one
 
-app.use("/cities", cityRoutes); // prepend /cities to each route
+// app.use("/cities", cityRoutes); // prepend /cities to each route
+app.use(cityRoutes);
 app.use(showRoutes);
 app.use(indexRoutes);
 

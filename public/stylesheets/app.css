@@ -33,3 +33,59 @@ hr.style-six {
 .addable, .added {
     margin-bottom: 5px;
 }
+
+#landing-jumbotron {
+    background: rgb(0, 0, 0); /* This is for ie8 and below */
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 1;
+    position: relative;
+    text-align: center;
+    /* padding-top: 40vh; */
+    margin-top: 20%;
+    width: 100%;
+}
+
+#landing-body {
+    background-image: url(https://img3.doubanio.com/view/photo/raw/public/p2161285224.jpg);
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+    z-index: 0;
+    margin: 0;
+    padding: 0;
+    background-size: cover;
+    background-repeat: no-repeat;
+}
+
+#landing-jumbotron h1 {
+    color: #fff;
+}
+
+#landing-jumbotron p {
+    color: #fff;
+}
+
+/* #landing-jumbotron .btn {
+    opacity: 0.8;
+} */
+
+.cardrow {
+    margin-top: 10px;
+}
+
+#city-detail-image {
+    width:100%;
+    height: 300px;
+}
+
+#city-detail-show-image {
+    width: 200px;
+    height: 100%;
+}
+
+/*
+main.container {
+    width: 100%;
+} */

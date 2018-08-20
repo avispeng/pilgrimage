@@ -6,6 +6,7 @@ middlewareObj.isLoggedIn = function(req, res, next) {
         return next();
     }
     req.flash("error", "Please login first!");
+    req.session.returnTo = req.path;
     res.redirect("/login");
 }
 

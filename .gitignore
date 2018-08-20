@@ -37,6 +37,7 @@ node_modules/
 jspm_packages/
 
 public/city-images/
+public/show-images/
 tmp/
 
 # TypeScript v1 declaration files

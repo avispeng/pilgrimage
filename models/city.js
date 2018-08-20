@@ -4,7 +4,7 @@ var Show = require("./show");
 var citySchema = new mongoose.Schema({
     name: String,
     country: String,
-    imageURL: [String],
+    imageURL: String,
     intro: String,
     shows: [{
         type: mongoose.Schema.Types.ObjectId,
