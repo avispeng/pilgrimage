@@ -5,7 +5,22 @@ var multer = require('multer');
 var City = require("../models/city"),
     Show = require("../models/show");
 var middlewareObj = require("../middleware");
-var upload = multer({ dest: 'tmp/' });
+
+// var upload = multer({ dest: 'tmp/' });
+
+var storage = multer.diskStorage({
+  filename: function(req, file, callback) {
+    callback(null, Date.now() + file.originalname);
+  }
+});
+var upload = multer({ storage: storage});
+
+var cloudinary = require('cloudinary');
+cloudinary.config({
+  cloud_name: 'doetad8xo',
+  api_key: process.env.CLOUDINARY_API_KEY,
+  api_secret: process.env.CLOUDINARY_API_SECRET
+});
 
 // grid of all cities
 router.get("/cities", function(req, res) {
@@ -26,57 +41,71 @@ router.get("/cities/new", middlewareObj.isLoggedIn, function(req, res) {
 
 // add a new city
 router.post("/cities", middlewareObj.isLoggedIn, upload.single('image'), function(req, res) {
+    // code below for local storage
+    // if(!req.file) {
+    //     var targetPath = "public/default-thumbnail.jpg";
+    // } else {
+    //     if(!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+    //         // console.log("wrong file type");
+    //         req.flash("error", "Invalid file format. Please upload a valid image.");
+    //         return res.redirect("/cities/new");
+    //     }
+    //     var tmpPath = req.file.path;
+    //     var targetPath = "public/city-images/" + Date.now() + '-' + req.file.originalname;
+    //     fs.rename(tmpPath, targetPath, function(err) {
+    //         if(err) {
+    //             req.flash("error", err.message);
+    //             // return res.redirect("/cities/new");
+    //         }
+    //         // fs.unlink(tmpPath, function(err) {
+    //         //     if(err) {
+    //         //         req.flash("error", err.message);
+    //         //         // return res.redirect("/cities/new");
+    //         //     }
+    //         // });
+    //     });
+    // }
+
+    // code below for cloud storage
     if(!req.file) {
-        var targetPath = "public/default-thumbnail.jpg";
+        req.body.city.imageURL = "/default-thumbnail.jpg";
+        var shows = [];
+        asyncLoopAddShows(0, req, shows, function() {
+            req.body.city.shows = shows;
+            City.create(req.body.city, function(err, city) {
+                if(err) {
+                    req.flash("error", err.message);
+                    return res.redirect("/cities");
+                }
+                console.log("shows added");
+                req.flash("success", "City added.");
+                res.redirect("/cities/" + city._id);
+            });
+        });
     } else {
         if(!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
             // console.log("wrong file type");
             req.flash("error", "Invalid file format. Please upload a valid image.");
             return res.redirect("/cities/new");
         }
-        var tmpPath = req.file.path;
-        var targetPath = "public/city-images/" + Date.now() + '-' + req.file.originalname;
-        fs.rename(tmpPath, targetPath, function(err) {
-            if(err) {
-                req.flash("error", err.message);
-                // return res.redirect("/cities/new");
-            }
-            // fs.unlink(tmpPath, function(err) {
-            //     if(err) {
-            //         req.flash("error", err.message);
-            //         // return res.redirect("/cities/new");
-            //     }
-            // });
-        });
-    }
-    City.create({
-        name: req.body.name,
-        country: req.body.country,
-        imageURL: targetPath.slice(6),
-        intro: req.body.intro,
-        // shows: shows
-    }, function(err, city) {
-        if(err) {
-            req.flash("error", err.message);
-            return res.redirect("/cities/new");
-        }
-        console.log("city added");
-
-        var shows = [];
-        asyncLoopAddShows(0, req, shows, function() {
-            city.shows = shows;
-            city.save(function(err, updated) {
-                if(err) {
-                    req.flash("error", err.message);
-                    return res.redirect("/cities");
-                } else {
+        cloudinary.uploader.upload(req.file.path, function(result) {
+            
+            req.body.city.imageURL = result.secure_url;
+            var shows = [];
+            asyncLoopAddShows(0, req, shows, function() {
+                req.body.city.shows = shows;
+                City.create(req.body.city, function(err, city) {
+                    if(err) {
+                        req.flash("error", err.message);
+                        return res.redirect("/cities");
+                    }
                     console.log("shows added");
                     req.flash("success", "City added.");
                     res.redirect("/cities/" + city._id);
-                }
+                });
             });
         });
-    });
+    }
 });
 
 // searching results
@@ -149,35 +178,58 @@ router.put("/cities/:id", middlewareObj.isLoggedIn, upload.single('image'), func
     // if we have more complicated situation
     // better handle the array and build a new object
     // var city = ...
-    var city = req.body.city;
+    // var city = req.body.city;
+    // code below for local storage
+    // if(req.file) {
+    //     if(!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+    //         req.flash("error", "Invalid file format. Please upload a valid image.");
+    //         return res.redirect("/cities/" + req.params.id + "/edit");
+    //     }
+    //     var tmpPath = req.file.path;
+    //     var targetPath = "public/city-images/" + Date.now() + '-' + req.file.originalname;
+    //     fs.rename(tmpPath, targetPath, function(err) {
+    //         if(err) {
+    //             req.flash("error", err.message);
+    //         }
+    //         // better delete original image if there is one
+    //     });
+    //     city.imageURL = targetPath.slice(6);
+    // }
     if(req.file) {
         if(!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+            // console.log("wrong file type");
             req.flash("error", "Invalid file format. Please upload a valid image.");
             return res.redirect("/cities/" + req.params.id + "/edit");
         }
-        var tmpPath = req.file.path;
-        var targetPath = "public/city-images/" + Date.now() + '-' + req.file.originalname;
-        fs.rename(tmpPath, targetPath, function(err) {
-            if(err) {
-                req.flash("error", err.message);
-            }
-            // better delete original image if there is one
+        cloudinary.uploader.upload(req.file.path, function(result) {
+            req.body.city.imageURL = result.secure_url;
+            var shows = [];
+            asyncLoopAddShows(0, req, shows, function() {
+                req.body.city.shows = shows;
+                City.findByIdAndUpdate(req.params.id, req.body.city, {upsert: true, new: true}, function(err, updated) {
+                    if(err) {
+                        req.flash("error", err.message);
+                        res.redirect("/cities/" + req.params.id);
+                    }
+                    req.flash("success", "City Updated.");
+                    res.redirect("/cities/" + req.params.id);
+                });
+            });
         });
-        city.imageURL = targetPath.slice(6);
-    }
-    var shows = [];
-    asyncLoopAddShows(0, req, shows, function() {
-        city.shows = shows;
-        City.findByIdAndUpdate(req.params.id, city, {upsert: true, new: true}, function(err, updated) {
-            if(err) {
-                req.flash("error", err.message);
-                res.redirect("/cities/" + req.params.id);
-            } else {
+    } else {
+        var shows = [];
+        asyncLoopAddShows(0, req, shows, function() {
+            req.body.city.shows = shows;
+            City.findByIdAndUpdate(req.params.id, req.body.city, {upsert: true, new: true}, function(err, updated) {
+                if(err) {
+                    req.flash("error", err.message);
+                    res.redirect("/cities/" + req.params.id);
+                }
                 req.flash("success", "City Updated.");
                 res.redirect("/cities/" + req.params.id);
-            }
+            });
         });
-    });
+    }
 });
 
 // helper functions
