@@ -14,14 +14,14 @@ router.get("/cities", function(req, res) {
             req.flash("error", err.message);
             res.redirect("/cities");
         } else {
-            res.render("cities/index", {headline: "Popular Cities", cities: cities});
+            res.render("cities/index", {headline: "Popular Cities", cities: cities, title: "Cities - Pilgrimage"});
         }
     });
 });
 
 // new city form
 router.get("/cities/new", middlewareObj.isLoggedIn, function(req, res) {
-    res.render("cities/new");
+    res.render("cities/new", {title: "New City - Pilgrimage"});
 });
 
 // add a new city
@@ -89,7 +89,7 @@ router.get("/cities/results", function(req, res) {
                 req.flash("error", err.message);
                 res.redirect("/cities");
             } else {
-                res.render("cities/results", {headline: "Searching Results", cities: cities});
+                res.render("cities/results", {headline: "Searching Results", cities: cities, title: "Cities - Pilgrimage"});
             }
         });
     } else {
@@ -98,7 +98,7 @@ router.get("/cities/results", function(req, res) {
                 req.flash("error", err.message);
                 res.redirect("/cities");
             } else {
-                res.render("cities/results", {headline: "Searching Results", cities: cities});
+                res.render("cities/results", {headline: "Searching Results", cities: cities, title: "Cities - Pilgrimage"});
             }
         });
     }
@@ -116,7 +116,7 @@ router.get("/cities/:id", function(req, res) {
             req.flash("error", "Can't find the city.");
             res.redirect("/cities");
         } else {
-            res.render("cities/detail", {city: found});
+            res.render("cities/detail", {city: found, title: found.name + " - Pilgrimage"});
         }
     });
 });
@@ -138,7 +138,7 @@ router.get("/cities/:id/edit", middlewareObj.isLoggedIn, function(req, res) {
             req.flash("error", "Can't find the city.");
             res.redirect("/cities");
         } else {
-            res.render("cities/edit", {city: found});
+            res.render("cities/edit", {city: found, title: "Edit - Pilgrimage"});
         }
     });
 });

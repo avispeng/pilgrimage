@@ -13,14 +13,14 @@ router.get("/shows", function(req, res) {
             req.flash("error", err.message);
             res.redirect("/shows");
         } else {
-            res.render("shows/index", {headline: "Popular Shows", shows: shows});
+            res.render("shows/index", {headline: "Popular Shows", shows: shows, title: "Shows - Pilgrimage"});
         }
     });
 });
 
 // new show form
 router.get("/shows/new", middlewareObj.isLoggedIn, function(req, res) {
-    res.render("shows/new");
+    res.render("shows/new", {title: "New Show - Pilgrimage"});
 });
 
 // add a new show
@@ -73,7 +73,7 @@ router.get("/shows/results", function(req, res) {
                 req.flash("error", err.message);
                 res.redirect("/shows");
             } else {
-                res.render("shows/index", {headline: "Searching Results", shows: shows});
+                res.render("shows/index", {headline: "Searching Results", shows: shows, title: "Shows - Pilgrimage"});
             }
         });
     } else {
@@ -82,7 +82,7 @@ router.get("/shows/results", function(req, res) {
                 req.flash("error", err.message);
                 res.redirect("/shows");
             } else {
-                res.render("shows/index", {headline: "Searching Results", shows: shows});
+                res.render("shows/index", {headline: "Searching Results", shows: shows, title: "Shows - Pilgrimage"});
             }
         });
     }
@@ -99,7 +99,14 @@ router.get("/shows/:id", function(req, res) {
             req.flash("error", "Can't find the show.");
             res.redirect("/shows");
         } else {
-            res.render("shows/detail", {show: found});
+            // find all cities where this show is shot.
+            City.find({shows: req.params.id}).exec(function(err, cities) {
+                if(err) {
+                    req.flash("error", err.message);
+                    res.redirect('back');
+                }
+                res.render("shows/detail", {show: found, cities: cities, title: found.name + " - Pilgrimage"});
+            })
         }
     });
 });
@@ -114,7 +121,7 @@ router.get("/shows/:id/edit", middlewareObj.isLoggedIn, function(req, res) {
             req.flash("error", "Can't find the show.");
             res.redirect("/shows");
         } else {
-            res.render("shows/edit", {show: found});
+            res.render("shows/edit", {show: found, title: "Edit - Pilgrimage"});
         }
     });
 });

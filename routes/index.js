@@ -10,7 +10,10 @@ router.get("/", function(req, res) {
 });
 
 router.get("/register", function(req, res) {
-    res.render("register");
+    if(!req.session.returnTo && !req.session.backURL) {
+        req.session.backURL = req.header('Referer');
+    }
+    res.render("register", {title: "Register - Pilgrimage"});
 });
 
 router.post("/register", function(req, res) {
@@ -21,22 +24,25 @@ router.post("/register", function(req, res) {
         }
         passport.authenticate("local")(req, res, function() {
             req.flash("success", "Successfully registered.");
-            res.redirect(req.session.returnTo || 'back');
+            res.redirect(req.session.returnTo || req.session.backURL || 'back');
             delete req.session.returnTo;
+            delete req.session.backURL;
         });
     });
 });
 
 router.get("/login", function(req, res) {
-    res.render("login");
+    req.session.backURL = req.header('Referer');
+    res.render("login", {title: "Login - Pilgrimage"});
 });
 
 router.post("/login", passport.authenticate("local", {
     failureRedirect: "/login",
     failureFlash : true
 }), function(req, res) {
-    res.redirect(req.session.returnTo || 'back');
+    res.redirect(req.session.returnTo || req.session.backURL || 'back');
     delete req.session.returnTo;
+    delete req.session.backURL;
 });
 
 router.get("/logout", function(req, res) {
