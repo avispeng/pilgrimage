@@ -1,0 +1,39 @@
+<% include ../partials/header %>
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+          <div id="map"></div>
+        </div>
+    </div>
+</div>
+<script>
+  function initMap() {
+    var lat = <%= match.lat %>;
+    var lng = <%= match.lng %>;
+    if(lat && lng) {
+        var center = {lat: lat, lng: lng };
+        var map = new google.maps.Map(document.getElementById('map'), {
+            zoom: 6,
+            center: center,
+            scrollwheel: false
+        });
+        var contentString = `
+          <strong><%= match.showName %> - <%= match.cityName %><br />
+          <%= match.address %></strong>
+          <p><%= match.description %></p>
+        `
+        var infowindow = new google.maps.InfoWindow({
+          content: contentString
+        });
+        var marker = new google.maps.Marker({
+            position: center,
+            map: map
+        });
+        marker.addListener('click', function() {
+          infowindow.open(map, marker);
+        });
+    }
+  }
+</script>
+<script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBFbBHdMcNmcv6V8odEfChnflQaYbByViA&callback=initMap"></script>
+<% include ../partials/footer %>

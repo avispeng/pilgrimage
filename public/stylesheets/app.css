@@ -111,11 +111,26 @@ hr.style-six {
 }
 
 .custom-btn-group {
-    padding-top: 10px;
+    padding-top: 15px;
 }
 
 .outer-row {
     margin-top:10px;
+}
+
+.table-header-left {
+    text-align:left;
+    font-size: 2em;
+}
+
+.table-header-right {
+    float:right;
+}
+
+/* Google Maps */
+#map {
+    height: 400px;
+    width: 100%;
 }
 /*
 main.container {

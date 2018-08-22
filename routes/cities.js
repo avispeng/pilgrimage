@@ -199,7 +199,11 @@ router.put("/cities/:id", middlewareObj.isLoggedIn, upload.single('image'), func
             req.body.city.imageURL = result.secure_url;
             var shows = [];
             asyncLoopAddShows(0, req, shows, function() {
-                req.body.city.shows = shows;
+                if(req.body.addedId) {
+                    req.body.city.shows = req.body.addedId.concat(shows);
+                } else {
+                    req.body.city.shows = shows;
+                }
                 City.findByIdAndUpdate(req.params.id, req.body.city, {upsert: true, new: true}, function(err, updated) {
                     if(err) {
                         req.flash("error", err.message);
@@ -213,7 +217,11 @@ router.put("/cities/:id", middlewareObj.isLoggedIn, upload.single('image'), func
     } else {
         var shows = [];
         asyncLoopAddShows(0, req, shows, function() {
-            req.body.city.shows = shows;
+            if(req.body.addedId) {
+                req.body.city.shows = req.body.addedId.concat(shows);
+            } else {
+                req.body.city.shows = shows;
+            }
             City.findByIdAndUpdate(req.params.id, req.body.city, {upsert: true, new: true}, function(err, updated) {
                 if(err) {
                     req.flash("error", err.message);

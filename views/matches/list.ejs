@@ -15,6 +15,14 @@
             <% } %>
         </div>
     </header>
+    <div class="table-header-left">
+        SCREENSHOT
+        <i class="fas fa-caret-down"></i>
+        <span class="table-header-right">
+            PHOTO
+            <i class="fas fa-caret-down"></i>
+        </span>
+    </div>
     <div class="ui items">
         <% if(matches) { %>
             <% matches.forEach(function(match) { %>
@@ -29,7 +37,8 @@
                     <p><%= match.description %></p>
                     </div>
                     <div class="extra">
-                        <a href="#"><%= match.address %></a>
+                        <i class="fas fa-map-marked-alt"></i>
+                        <a href="/matches/<%= match._id %>/map"><%= match.address %></a>
                     </div>
                 </div>
                 <div class="image">

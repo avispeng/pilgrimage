@@ -6,6 +6,16 @@ var City = require("../models/city"),
     Show = require("../models/show"),
     Match = require("../models/match");
 var middlewareObj = require("../middleware");
+var NodeGeocoder = require('node-geocoder');
+
+var options = {
+  provider: 'google',
+  httpAdapter: 'https',
+  apiKey: process.env.GEOCODER_API_KEY,
+  formatter: null
+};
+
+var geocoder = NodeGeocoder(options);
 
 var storage = multer.diskStorage({
   filename: function(req, file, callback) {
@@ -36,88 +46,93 @@ router.get("/cities/:cityId/shows/:showId", function(req, res) {
 });
 
 router.post("/cities/:cityId/shows/:showId", middlewareObj.isLoggedIn, upload.array("images", 2), function(req, res) {
+    // check file format
+    if(req.files && (req.files[0] && !req.files[0].originalname.match(/\.(jpg|jpeg|png|gif)$/) ||
+    req.files[1] && !req.files[1].originalname.match(/\.(jpg|jpeg|png|gif)$/))) {
+        req.flash("error", "Invalid file format. Please upload valid images");
+        res.redirect("back");
+    }
     req.body.match.showId = req.params.showId;
     req.body.match.cityId = req.params.cityId;
     City.findOne({_id: req.params.cityId, shows: req.params.showId}, function(err, city) {
         if(err) {
             req.flash("error", err.message);
-            console.log(err.message);
             res.redirect("back");
         } else if(!city) {
             req.flash("error", "Can't find the city, show or match.");
             res.redirect("/cities");
         } else {
-            if(!req.files || req.files.length == 0 || !req.files[0] && !req.files[1]) {
-                req.body.match.cityPhoto = "/default-thumbnail.jpg";
-                req.body.match.showScreenshot = "/default-thumbnail.jpg";
-                Match.create(req.body.match, function(err, match) {
-                    if(err) {
-                        req.flash("error", err.message);
-                        console.log(err.message);
-                        res.redirect("/cities/" + req.params.cityId + "/shows/" + req.params.showId);
-                    }
-                    res.redirect("/cities/" + match.cityId + "/shows/" + match.showId);
-                    console.log("no photo no screenshot. match created");
-                });
-            } else {
-                var screenshot = req.files[0];
-                var photo = req.files[1];
-                if(screenshot && !screenshot.originalname.match(/\.(jpg|jpeg|png|gif)$/) ||
-            photo && !photo.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
-                    req.flash("error", "Invalid file format. Please upload valid images");
-                    res.redirect("/cities/" + req.params.cityId + "/shows/" + req.params.showId + "/new");
-                    console.log("Invalid file format. Please upload valid images");
-                } else {
-                    if(screenshot) {
-                        cloudinary.uploader.upload(screenshot.path, function(result) {
-                            req.body.match.showScreenshot = result.secure_url;
-                            if(photo) {
-                                cloudinary.uploader.upload(photo.path, function(result) {
-                                    req.body.match.cityPhoto = result.secure_url;
-                                    Match.create(req.body.match, function(err, match) {
-                                        if(err) {
-                                            console.log(err.message);
-                                            req.flash("error", err.message);
-                                            res.redirect("/cities/" + req.params.cityId + "/shows/" + req.params.showId);
-                                        } else {
-                                            res.redirect("/cities/" + match.cityId + "/shows/" + match.showId);
-                                            console.log("photo and screenshot. match created");
-                                        }
-                                    });
-                                });
-                            } else {
-                                req.body.match.cityPhoto = "/default-thumbnail.jpg";
-                                Match.create(req.body.match, function(err, match) {
-                                    if(err) {
-                                        console.log(err.message);
-                                        req.flash("error", err.message);
-                                        res.redirect("/cities/" + req.params.cityId + "/shows/" + req.params.showId);
-                                    } else {
-                                        res.redirect("/cities/" + match.cityId + "/shows/" + match.showId);
-                                        console.log("no photo. match created");
-                                    }
-                                });
-                            }
-                        });
-                    } else {
-                        // only photo
-                        req.body.match.showScreenshot = "/default-thumbnail.jpg";
-                        cloudinary.uploader.upload(photo.path, function(result) {
-                            req.body.match.cityPhoto = result.secure_url;
-                            Match.create(req.body.match, function(err, match) {
-                                if(err) {
-                                    console.log(err.message);
-                                    req.flash("error", err.message);
-                                    res.redirect("/cities/" + req.params.cityId + "/shows/" + req.params.showId);
-                                } else {
-                                    res.redirect("/cities/" + match.cityId + "/shows/" + match.showId);
-                                    console.log("no screenshot. match created");
-                                }
-                            });
-                        });
-                    }
-                }
-            }
+            geocoder.geocode(req.body.match.address + " " + city.name + " " + city.country, function (err, data) {
+              if (err || !data.length) {
+                req.flash('error', 'Invalid address');
+                return res.redirect('back');
+              }
+              req.body.match.lat = data[0].latitude;
+              req.body.match.lng = data[0].longitude;
+              req.body.match.address = data[0].formattedAddress;
+              // create the record first and then add image fields and save
+              Match.create(req.body.match, function(err, match) {
+                  if(err) {
+                      req.flash("error", err.message);
+                      return res.redirect("/cities/" + req.params.cityId + "/shows/" + req.params.showId);
+                  }
+                  // process image uploading
+                  if(!req.files || req.files.length == 0 || !req.files[0] && !req.files[1]) {
+                      // neither photo or screenshot are uploaded
+                      match.cityPhoto = "/default-thumbnail.jpg";
+                      match.showScreenshot = "/default-thumbnail.jpg";
+                      match.save(function(err) {
+                          if(err) {
+                              req.flash("error", err.message);
+                              return res.redirect("/cities/" + match.cityId + "/shows/" + match.showId);
+                          }
+                          res.redirect("/cities/" + match.cityId + "/shows/" + match.showId);
+                      });
+                  } else {
+                      var screenshot = req.files[0];
+                      var photo = req.files[1];
+                      if(screenshot) {
+                          cloudinary.uploader.upload(screenshot.path, function(result) {
+                              match.showScreenshot = result.secure_url;
+                              if(photo) {
+                                  cloudinary.uploader.upload(photo.path, function(result) {
+                                      match.cityPhoto = result.secure_url;
+                                      match.save(function(err) {
+                                          if(err) {
+                                              req.flash("error", err.message);
+                                              return res.redirect("/cities/" + match.cityId + "/shows/" + match.showId);
+                                          }
+                                          res.redirect("/cities/" + match.cityId + "/shows/" + match.showId);
+                                      });
+                                  });
+                              } else {
+                                  match.cityPhoto = "/default-thumbnail.jpg";
+                                  match.save(function(err) {
+                                      if(err) {
+                                          req.flash("error", err.message);
+                                          return res.redirect("/cities/" + match.cityId + "/shows/" + match.showId);
+                                      }
+                                      res.redirect("/cities/" + match.cityId + "/shows/" + match.showId);
+                                  });
+                              }
+                          });
+                      } else {
+                          // only photo
+                          match.showScreenshot = "/default-thumbnail.jpg";
+                          cloudinary.uploader.upload(photo.path, function(result) {
+                              match.cityPhoto = result.secure_url;
+                              match.save(function(err) {
+                                  if(err) {
+                                      req.flash("error", err.message);
+                                      return res.redirect("/cities/" + match.cityId + "/shows/" + match.showId);
+                                  }
+                                  res.redirect("/cities/" + match.cityId + "/shows/" + match.showId);
+                              });
+                          });
+                      }
+                  }
+              });
+            });
         }
     });
 });
@@ -170,7 +185,7 @@ router.get("/matches/:id/cityPhoto", function(req, res) {
             req.flash("error", err.message);
             return res.redirect("back");
         } else if(!found) {
-            req.flash("error", "Can't find the Image.");
+            req.flash("error", "Can't find the Record.");
             return res.redirect("back");
         }
         res.render("matches/image", {title: "City Photo", imageURL: found.cityPhoto});
@@ -183,10 +198,23 @@ router.get("/matches/:id/showScreenshot", function(req, res) {
             req.flash("error", err.message);
             return res.redirect("back");
         } else if(!found) {
-            req.flash("error", "Can't find the Image.");
+            req.flash("error", "Can't find the Record.");
             return res.redirect("back");
         }
         res.render("matches/image", {title: "Show Screenshot", imageURL: found.showScreenshot});
+    });
+});
+
+router.get("/matches/:id/map", function(req, res) {
+    Match.findById(req.params.id, function(err, found) {
+        if(err) {
+            req.flash("error", err.message);
+            return res.redirect("back");
+        } else if(!found) {
+            req.flash("error", "Can't find the Record.");
+            return res.redirect("back");
+        }
+        res.render("matches/map", {title: "Map", match: found});
     });
 });
 
