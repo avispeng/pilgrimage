@@ -11,7 +11,9 @@
                 <% } %>
             </h1>
             <% if(currentUser) { %>
-                <a class="btn btn-light" href="/cities/<%= cityId %>/shows/<%= showId %>/new">Add</a>
+                <div class="custom-btn-group">
+                    <a class="btn btn-light" href="/cities/<%= cityId %>/shows/<%= showId %>/new">Add</a>
+                </div>
             <% } %>
         </div>
     </header>
