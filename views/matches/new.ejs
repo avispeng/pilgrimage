@@ -1,0 +1,40 @@
+<% include ../partials/header %>
+<div class="container new-form">
+    <!-- <div class="row"> -->
+        <h1>Add a New Record for <%= show.name %> - <%= city.name %></h1>
+        <form action="/cities/<%= city._id %>/shows/<%= show._id %>" method="post" enctype="multipart/form-data">
+            <div class="form-group">
+                <label for="showName">Show Title:</label>
+                <input class="form-control" type="text" name="match[showName]" value="<%= show.name %>" readonly />
+            </div>
+            <div class="form-group">
+                <label for="cityName">City:</label>
+                <input class="form-control" type="text" name="match[cityName]" value="<%= city.name %>" readonly />
+            </div>
+            <div class="form-group">
+                <label for="address">Filming Location: (As detailed as possible)</label>
+                <input class="form-control" type="text" name="match[address]" placeholder="Where is the scene filmed exactly?" />
+            </div>
+            <div class="form-group">
+              <label for="screenshot">Screenshot of the Show:</label>
+              <input type="file" name="images" accept="image/*">
+              <p class="help-block">Upload a screenshot of this show.</p>
+            </div>
+            <div class="form-group">
+              <label for="photo">Corresponding photo of the spot:</label>
+              <input type="file" name="images" accept="image/*">
+              <p class="help-block">Upload a corresponding photo of this location.</p>
+            </div>
+            <div class="form-group">
+              <label for="description">Description:</label>
+              <textarea class="form-control" rows="5" name="match[description]"
+              placeholder="If it's a TV series, in which season and which episode is this scene? Or even in which minute? Please provide helpful information as much as possible."></textarea>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-lg btn-default btn-primary btn-block" type="submit">Submit</button>
+            </div>
+        </form>
+        <!-- <a href="/back">Go Back</a> -->
+    <!-- </div> -->
+</div>
+<% include ../partials/footer %>

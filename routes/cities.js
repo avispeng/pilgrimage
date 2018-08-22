@@ -89,7 +89,7 @@ router.post("/cities", middlewareObj.isLoggedIn, upload.single('image'), functio
             return res.redirect("/cities/new");
         }
         cloudinary.uploader.upload(req.file.path, function(result) {
-            
+
             req.body.city.imageURL = result.secure_url;
             var shows = [];
             asyncLoopAddShows(0, req, shows, function() {
@@ -150,12 +150,6 @@ router.get("/cities/:id", function(req, res) {
     });
 });
 
-// add-new-show form for this city
-router.get("/cities/:id/shows/new", function(req, res) {
-    // add show to this city
-
-});
-
 // Edit
 router.get("/cities/:id/edit", middlewareObj.isLoggedIn, function(req, res) {
     City.findById(req.params.id).populate("shows").exec(function(err, found) {
@@ -209,7 +203,7 @@ router.put("/cities/:id", middlewareObj.isLoggedIn, upload.single('image'), func
                 City.findByIdAndUpdate(req.params.id, req.body.city, {upsert: true, new: true}, function(err, updated) {
                     if(err) {
                         req.flash("error", err.message);
-                        res.redirect("/cities/" + req.params.id);
+                        return res.redirect("/cities/" + req.params.id);
                     }
                     req.flash("success", "City Updated.");
                     res.redirect("/cities/" + req.params.id);
@@ -223,7 +217,7 @@ router.put("/cities/:id", middlewareObj.isLoggedIn, upload.single('image'), func
             City.findByIdAndUpdate(req.params.id, req.body.city, {upsert: true, new: true}, function(err, updated) {
                 if(err) {
                     req.flash("error", err.message);
-                    res.redirect("/cities/" + req.params.id);
+                    return res.redirect("/cities/" + req.params.id);
                 }
                 req.flash("success", "City Updated.");
                 res.redirect("/cities/" + req.params.id);

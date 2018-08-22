@@ -29,10 +29,10 @@
                 <% city.shows.forEach(function(s) { %>
                     <div class="row added">
                         <div class="col-sm-6">
-                            <input class="form-control" type="text" name="show[]" value="<%= s.name %>" />
+                            <input class="form-control" type="text" name="show[]" value="<%= s.name %>" readonly />
                         </div>
                         <div class="col-sm-6">
-                            <input class="form-control" type="text" name="douban[]" value="<%= s.douban %>" />
+                            <input class="form-control" type="text" name="douban[]" value="<%= s.douban %>" readonly />
                         </div>
                     </div>
                 <% }); %>

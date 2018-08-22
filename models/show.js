@@ -5,10 +5,6 @@ var showSchema = new mongoose.Schema({
     douban: String,
     intro: String,
     imageURL: String,
-    // cities: [{
-    //     type: mongoose.Schema.Types.ObjectId,
-    //     ref: "City"
-    // }]
 });
 
 module.exports = mongoose.model("Show", showSchema);

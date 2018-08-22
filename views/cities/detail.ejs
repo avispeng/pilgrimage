@@ -10,38 +10,70 @@
         </div>
     </div> -->
     <div class="card bg-dark text-white">
-      <img class="card-img" src="<%= city.imageURL %>" id="city-detail-image" alt="<%= city.name %>">
+      <img class="card-img city-detail-image" src="<%= city.imageURL %>" alt="<%= city.name %>">
       <div class="card-img-overlay">
-        <h5 class="card-title"><%= city.name %> - <strong><%= city.country %></strong></h5>
-        <p class="card-text"><%= city.intro %></p>
-        <% if(currentUser) { %>
-            <a class="btn btn-light" href="/cities/<%= city._id %>/edit">Edit</a>
-        <% } %>
+        <div class="banner-text">
+          <h2 class="card-title"><%= city.name %> - <strong><%= city.country %></strong></h2>
+          <p class="card-text"><%= city.intro %></p>
+          <% if(currentUser) { %>
+              <a class="btn btn-outline-light" href="/cities/<%= city._id %>/edit">Edit</a>
+          <% } %>
+        </div>
+
       </div>
     </div>
-    <div class="row cardrow">
+    <div class="row headline">
         <div class="col-lg-12">
-            <h3>The Shows That Have Been Shot There...</h3>
+            <h3>The Shows That Have Been Filmed There...</h3>
         </div>
     </div>
     <div class="row mb-2">
         <% city.shows.forEach(function(s) { %>
-        <div class="col-md-6 cardrow">
-          <div class="card flex-md-row mb-4 shadow-sm h-md-250">
+        <div class="col-md-6 outer-row">
+          <!-- <div class="card flex-md-row mb-4 shadow-sm h-md-250">
             <div class="card-body d-flex flex-column align-items-start">
-              <!-- <strong class="d-inline-block mb-2 text-primary">World</strong> -->
               <h3 class="mb-0">
                 <a class="text-dark" href="/shows/<%= s._id %>"><%= s.name %></a>
               </h3>
-              <!-- <div class="mb-1 text-muted">Link To Douban</div> -->
-              <p class="card-text mb-auto"><%= s.intro %></p>
-              <a href="https://movie.douban.com/subject/<%= s.douban %>">Link to Douban</a>
-            </div>
-            <img class="card-img-right flex-auto d-none d-lg-block"
-            data-src="holder.js/200x250?theme=thumb" data-holder-rendered="true"
-            id="city-detail-show-image"
-            src="<%= s.imageURL %>" >
+                  <p class="card-text mb-auto"><%= s.intro %></p>
+                  <div class="btn-group" role="group" aria-label="Basic example">
+                  <a class="btn btn-success" href="https://movie.douban.com/subject/<%= s.douban %>">
+                      Douban
+                  </a>
+                  <a href="/cities/<%= city._id %>/shows/<%= s._id %>" class="btn btn-light">
+                      Filming Details
+                  </a>
+                  </div>
+                </div>
+                <img class="card-img-right flex-auto poster"
+                data-src="holder.js/200x250?theme=thumb" data-holder-rendered="true"
+                id="city-detail-show-image"
+                src="<%= s.imageURL %>" >
+          </div> -->
+          <div class="card">
+              <div class="inner-row">
+                  <h3 class="mb-0 movie-title">
+                    <a class="text-dark" href="/shows/<%= s._id %>"><%= s.name %></a>
+                  </h3>
+                  <div class="row">
+                      <div class="col-sm-8 movie-intro">
+                          <p class="card-text mb-auto"><%= s.intro %></p>
+                          <div class="btn-group custom-btn-group" role="group" aria-label="Basic example">
+                          <a class="btn btn-success" href="https://movie.douban.com/subject/<%= s.douban %>">
+                              Douban
+                          </a>
+                          <a href="/cities/<%= city._id %>/shows/<%= s._id %>" class="btn btn-light">
+                              Filming Details
+                          </a>
+                          </div>
+                      </div>
+                      <div class="col-sm-4 poster">
+                          <img class="poster-img" src="<%= s.imageURL %>" style="width:100%;">
+                      </div>
+                  </div>
+              </div>
           </div>
+
         </div>
         <% }); %>
     </div>

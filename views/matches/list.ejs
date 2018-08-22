@@ -1,0 +1,46 @@
+<% include ../partials/header %>
+
+<div class="container">
+    <header class="jumbotron">
+        <div class="container">
+            <h1>
+                <% if(matches) { %>
+                    Filming Details of <%= matches[0].showName %> at <%= matches[0].cityName %>
+                <% } else { %>
+                    No Matches Found.
+                <% } %>
+            </h1>
+            <% if(currentUser) { %>
+                <a class="btn btn-light" href="/cities/<%= cityId %>/shows/<%= showId %>/new">Add</a>
+            <% } %>
+        </div>
+    </header>
+    <div class="ui items">
+        <% if(matches) { %>
+            <% matches.forEach(function(match) { %>
+            <div class="item">
+                <div class="image">
+                    <a class="ui medium image" href="/matches/<%= match._id %>/showScreenshot">
+                        <img src="<%= match.showScreenshot %>" alt="show screenshot">
+                    </a>
+                </div>
+                <div class="content">
+                    <div class="description">
+                    <p><%= match.description %></p>
+                    </div>
+                    <div class="extra">
+                        <a href="#"><%= match.address %></a>
+                    </div>
+                </div>
+                <div class="image">
+                    <a class="ui medium image" href="/matches/<%= match._id %>/cityPhoto">
+                        <img src="<%= match.cityPhoto %>" alt="city photo">
+                    </a>
+                </div>
+            </div>
+            <hr class="style-six" />
+            <% }); %>
+        <% } %>
+    </div>
+</div>
+<% include ../partials/footer %>

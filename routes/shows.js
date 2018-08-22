@@ -135,7 +135,7 @@ router.get("/shows/:id", function(req, res) {
             City.find({shows: req.params.id}).exec(function(err, cities) {
                 if(err) {
                     req.flash("error", err.message);
-                    res.redirect('back');
+                    return res.redirect('back');
                 }
                 res.render("shows/detail", {show: found, cities: cities, title: found.name + " - Pilgrimage"});
             })
@@ -196,7 +196,7 @@ router.put("/shows/:id", middlewareObj.isLoggedIn, upload.single('image'), funct
                     Show.findOneAndUpdate({douban: show.douban}, req.body.show, {upsert: true, new: true}, function(err, updated) {
                         if(err) {
                             req.flash("error", err.message);
-                            res.redirect("/shows");
+                            return res.redirect("/shows");
                         }
                         req.flash("success", "Can't find the show. Created one.");
                         res.redirect("/shows/" + updated._id);
@@ -216,7 +216,7 @@ router.put("/shows/:id", middlewareObj.isLoggedIn, upload.single('image'), funct
                 Show.findOneAndUpdate({douban: show.douban}, show, {upsert: true, new: true}, function(err, updated) {
                     if(err) {
                         req.flash("error", err.message);
-                        res.redirect("/shows");
+                        return res.redirect("/shows");
                     }
                     req.flash("success", "Can't find the show. Created one.");
                     res.redirect("/shows/" + updated._id);

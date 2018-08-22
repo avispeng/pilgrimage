@@ -10,9 +10,12 @@
                 <div class="description">
                 <p><%= show.intro %></p>
                 </div>
-                <div class="extra">
-                    <a href="https://movie.douban.com/subject/<%= show.douban %>">Link to Douban</a>,
-                </div>
+                <!-- <div class="extra">
+                    <a href="https://movie.douban.com/subject/<%= show.douban %>">Link to Douban</a>
+                </div> -->
+                <a class="btn btn-success" href="https://movie.douban.com/subject/<%= show.douban %>">
+                    Douban
+                </a>
                 <% if(currentUser) { %>
                     <a class="btn btn-outline-dark" href="/shows/<%= show._id %>/edit">Edit</a>
                 <% } %>
@@ -20,14 +23,14 @@
         </div>
         <hr class="style-six" />
     </div>
-    <div class="row cardrow">
+    <div class="row headline">
         <div class="col-lg-12">
-            <h3>The Show is Shot in...</h3>
+            <h3>The Show is Filmed in...</h3>
         </div>
     </div>
     <div class="row">
         <% cities.forEach(function(c) { %>
-        <div class="col-md-12 cardrow">
+        <div class="col-md-12 outer-row">
           <div class="card flex-md-row mb-4 shadow-sm h-md-250">
             <div class="card-body d-flex flex-column align-items-start">
               <!-- <strong class="d-inline-block mb-2 text-primary">World</strong> -->
