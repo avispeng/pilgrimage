@@ -41,10 +41,14 @@
               </h3>
               <div class="mb-1 text-muted"><%= c.country %></div>
               <p class="card-text mb-auto"><%= c.intro %></p>
+              <div class="custom-btn-group">
+                  <a href="/cities/<%= c._id %>/shows/<%= show._id %>" class="btn btn-light">
+                      Filming Details
+                  </a>
+              </div>
             </div>
-            <img class="card-img-right flex-auto d-none d-lg-block"
+            <img class="show-detail-city-img card-img-right flex-auto d-none d-lg-block"
             data-src="holder.js/200x250?theme=thumb" data-holder-rendered="true"
-            id="city-detail-show-image"
             src="<%= c.imageURL %>" >
           </div>
         </div>
