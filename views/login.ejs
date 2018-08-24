@@ -1,6 +1,6 @@
 <% include ./partials/header %>
 <div class="container">
-    <form action="/login" method="post">
+    <!-- <form action="/login" method="post">
       <div class="form-group">
         <label for="exampleInputText">Username</label>
         <input type="text" name="username" class="form-control" id="exampleInputText" placeholder="Username">
@@ -14,6 +14,25 @@
         <label class="form-check-label" for="exampleCheck1">Keep me logged in</label>
       </div>
       <button type="submit" class="btn btn-primary">Login</button>
+    </form> -->
+    <form class="ui form" action="/login" method="post">
+      <h1 class="ui header">Login</h1>
+      <div class="field">
+        <label>Username</label>
+        <input type="text" name="username" id="username" placeholder="Username">
+      </div>
+      <div class="field">
+        <label>Password</label>
+        <input type="password" name="password" id="password" placeholder="Password">
+      </div>
+      <div class="field">
+        <div class="ui checkbox">
+          <input type="checkbox" tabindex="0" class="hidden">
+          <label>Keep me logged in</label>
+        </div>
+      </div>
+      <button class="ui button" type="submit">Login</button>
+      <div class="ui error message">
     </form>
 </div>
 
