@@ -67,6 +67,14 @@ hr.style-six {
     color: #fff;
 }
 
+/* #landing-jumbotron a {
+    color: #fff;
+} */
+
+.small-lead {
+    font-size: 0.8em;
+}
+
 /* #landing-jumbotron .btn {
     opacity: 0.8;
 } */
