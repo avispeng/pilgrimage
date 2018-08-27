@@ -1,31 +1,43 @@
 <% include ../partials/header %>
 <div class="container new-form">
     <!-- <div class="row"> -->
-        <h1>Edit <%= show.name %></h1>
-        <form action="/shows/<%= show._id %>?_method=PUT" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="showName">Show Title:</label>
+        <h1 class="mb-3">Edit <%= show.name %></h1>
+        <form action="/shows/<%= show._id %>?_method=PUT" method="post" enctype="multipart/form-data" class="ui form">
+            <div class="field">
+                <label>Show Title</label>
                 <%= show.name %>
             </div>
-            <div class="form-group">
-                <label for="showDouban">Douban ID:</label>
-                <input class="form-control" type="text" name="show[douban]" value="<%= show.douban %>" />
+            <div class="field">
+                <label>Douban ID</label>
+                <input type="text" name="show[douban]" value="<%= show.douban %>" />
             </div>
-            <div class="form-group">
-              <label for="showImage">Poster of the Show:</label>
-              <input type="file" name="image" accept="image/*">
-              <p class="help-block">Upload a poster of this show.</p>
+            <div class="field">
+              <label>Poster of the Show</label>
+              <div class="custom-file">
+                  <input type="file" name="image" accept="image/*" class="custom-file-input">
+                  <label class="custom-file-label" for="customFile">Choose file</label>
+              </div>
+              <!-- <p class="help-block">Upload a poster of this show.</p> -->
             </div>
-            <div class="form-group">
-              <label for="introduction">Introduction:</label>
-              <textarea class="form-control" rows="5" name="show[intro]"><%= show.intro %></textarea>
+            <div class="field">
+              <label>Introduction</label>
+              <textarea rows="5" name="show[intro]" id="introduction"><%= show.intro %></textarea>
+              <small class="form-text text-muted">No longer than 300 characters.</small>
             </div>
-
-            <div class="form-group">
-                <button class="btn btn-lg btn-default btn-primary btn-block" type="submit">Submit</button>
-            </div>
+            <button class="fluid large ui secondary button" type="submit">Submit</button>
+            <div class="ui error message">
         </form>
         <!-- <a href="/back">Go Back</a> -->
     <!-- </div> -->
 </div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.ui.form')
+        .form({
+        fields: {
+          introduction: 'maxLength[300]'
+        }
+        });
+    });
+</script>
 <% include ../partials/footer %>

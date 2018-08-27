@@ -1,58 +1,71 @@
 <% include ../partials/header %>
 <div class="container new-form">
     <!-- <div class="row"> -->
-        <h1>Edit <%= city.name %></h1>
-        <form action="/cities/<%= city._id %>?_method=PUT" method="post" enctype="multipart/form-data">
-            <div class="form-group">
-                <label for="cityName">City:</label>
+        <h1 class="mb-3">Edit <%= city.name %></h1>
+        <form action="/cities/<%= city._id %>?_method=PUT" method="post" enctype="multipart/form-data" class="ui form">
+            <div class="field">
+                <label>City</label>
                 <%= city.name %>
             </div>
-            <div class="form-group">
-                <label for="countryName">Country/Region:</label>
+            <div class="field">
+                <label>Country/Region</label>
                 <%= city.country %>
             </div>
-            <!-- <div class="form-group">
+            <!-- <div class="field">
                 <label for="imgURL">Image URL:</label>
-                <input class="form-control" type="text" name="image" placeholder="Image URL" />
+                <input type="text" name="image" placeholder="Image URL" />
             </div> -->
-            <div class="form-group">
-              <label for="cityImage">Picture of the City:</label>
-              <input type="file" id="cityImage" name="image" accept="image/*">
-              <p class="help-block">Upload a good picture of this city.</p>
+            <div class="field">
+                <label for="cityImage">Picture of the City</label>
+                <div class="custom-file">
+                  <input type="file" id="cityImage" name="image" accept="image/*" class="custom-file-input">
+                  <label class="custom-file-label" for="customFile">Choose file</label>
+                  <!-- <p class="help-block">Upload a good picture of this city.</p> -->
+                </div>
             </div>
-            <div class="form-group">
-              <label for="introduction">Introduction:</label>
-              <textarea class="form-control" rows="5" name="city[intro]"><%= city.intro %></textarea>
+            <div class="field">
+              <label>Introduction</label>
+              <textarea rows="5" name="city[intro]" id="introduction"><%= city.intro %></textarea>
+              <small class="form-text text-muted">No longer than 250 characters.</small>
             </div>
-            <div class="form-group">
-                <label for="showName">Show Name and It's Douban ID:</label>
+            <div class="field">
+                <label>Show Name and It's Douban ID:</label>
                 <% city.shows.forEach(function(s) { %>
                     <div class="row added">
                         <input type="text" name="addedId[]" value="<%= s._id %>" hidden />
                         <div class="col-sm-6">
-                            <input class="form-control" type="text" value="<%= s.name %>" readonly />
+                            <input type="text" value="<%= s.name %>" readonly />
                         </div>
                         <div class="col-sm-6">
-                            <input class="form-control" type="text" value="<%= s.douban %>" readonly />
+                            <input type="text" value="<%= s.douban %>" readonly />
                         </div>
                     </div>
                 <% }); %>
                 <div class="row addable">
                     <div class="col-sm-6">
-                        <input class="form-control" type="text" name="show[]" />
+                        <input type="text" name="show[]" />
                     </div>
                     <div class="col-sm-6">
-                        <input class="form-control" type="text" name="douban[]" />
+                        <input type="text" name="douban[]" />
                     </div>
                 </div>
-                <button type="button" class="btn btn-secondary" id="addrow">Add One More</button>
+                <button type="button" class="medium ui button mt-1" id="addrow">Add One More</button>
                 <small class="form-text text-muted">Douban ID Must be 7 - 8 Digits.</small>
             </div>
-            <div class="form-group">
-                <button class="btn btn-lg btn-default btn-primary btn-block" type="submit">Submit</button>
-            </div>
+            <button class="fluid large ui secondary button" type="submit">Submit</button>
+            <div class="ui error message">
         </form>
         <!-- <a href="/back">Go Back</a> -->
     <!-- </div> -->
 </div>
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('.ui.form')
+        .form({
+        fields: {
+          introduction: 'maxLength[250]'
+        }
+        });
+    });
+</script>
 <% include ../partials/footer %>

@@ -4,9 +4,9 @@
     <header class="jumbotron">
         <div class="container">
             <h1>Search for the Show</h1>
-            <form class="form-inline" action="/shows/results" method="get">
+            <form class="form-inline mt-3" action="/shows/results" method="get">
                 <input class="form-control mr-sm-2" type="text" name="show" placeholder="Person Of Interest" />
-                <input type="submit" class="btn btn-primary btn-md" value="Search"/>
+                <input type="submit" class="small ui grey button btn-md" value="Search"/>
             </form>
         </div>
     </header>
@@ -23,8 +23,11 @@
                         <img class="card-img-top" src="<%= show.imageURL %>">
                         <div class="card-body">
                             <h3 class="card-title"><%= show.name %></h3>
-                            <p class="max-lines card-text"><%= show.intro %></p>
-                            <a href="/shows/<%= show._id %>" class="btn btn-primary">Learn More</a>
+                            <div class="intro-div">
+                                <p class="max-lines card-text" style="display:none;"><%= show.intro %></p>
+                                <button class=" small ui grey basic button mb-2 mt-2">Display Intro</button>
+                            </div>
+                            <a href="/shows/<%= show._id %>" class="small ui grey button flimed-in-btn">Filmed in</a>
                         </div>
                     </div>
                 </div>
