@@ -63,7 +63,8 @@ router.post("/shows", middlewareObj.isLoggedIn, upload.single('image'), function
     //     });
     // }
     if(!req.file) {
-        req.body.show.imageURL = "/default-thumbnail.jpg";
+        console.log('no file');
+        req.body.show.imageURL = "/default-poster.png";
         Show.findOneAndUpdate({'douban': req.body.show.douban}, req.body.show, {upsert: true, new: true}, function(err, show) {
             if(err) {
                 req.flash("error", err.message);
@@ -74,6 +75,7 @@ router.post("/shows", middlewareObj.isLoggedIn, upload.single('image'), function
             res.redirect("/shows/" + show._id);
         });
     } else {
+        console.log(req.file.originalname);
         if(!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
             // console.log("wrong file type");
             req.flash("error", "Invalid file format. Please upload a valid image.");

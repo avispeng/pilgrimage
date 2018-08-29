@@ -8,6 +8,9 @@
           integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
           crossorigin="anonymous">
         </script>
+        <link href="https://cdn.bootcss.com/cropper/4.0.0/cropper.min.css" rel="stylesheet">
+        <script src="https://cdn.bootcss.com/cropper/4.0.0/cropper.min.js"></script>
+
         <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
         integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q"
         crossorigin="anonymous"></script>
@@ -52,7 +55,7 @@
                 </div>
             <!-- </div> -->
         </nav>
-        <div class="top-to-nav container">
+        <div class="top-to-nav container" id="message-div">
             <% if(error && error.length > 0) { %>
             <div class="alert alert-danger" role="alert">
               <%= error %>

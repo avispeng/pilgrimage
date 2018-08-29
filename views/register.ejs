@@ -46,14 +46,16 @@
 </div>
 <script>
 $(document).ready(function(){
-$('.ui.form')
-  .form({
-    fields: {
-      username: 'empty',
-      password: 'empty',
-      passwordConfirmation: ['empty', 'match[password]']
-    }
-});
+    $('#message-div').innerWidth($('#message-div').next().innerWidth());
+    $('.ui.form')
+      .form({
+        fields: {
+          username: ['minLength[6]', 'maxLength[20]'],
+          password: ['minLength[6]', 'maxLength[20]'],
+          passwordConfirmation: ['match[password]']
+        }
+    });
+
 })
 </script>
 <% include ./partials/footer %>

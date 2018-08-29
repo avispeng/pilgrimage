@@ -147,6 +147,18 @@ hr.style-six {
     height: 15vw;
     object-fit: contain;
 }
+
+img {
+    max-width: 100%;
+}
+
+#canvas {
+  height: 296px;
+  width: 200px;
+  background-color: #ffffff;
+  cursor: default;
+  border: 1px solid black;
+}
 /*
 main.container {
     width: 100%;

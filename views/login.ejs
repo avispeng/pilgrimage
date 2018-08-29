@@ -35,6 +35,10 @@
       <div class="ui error message">
     </form>
 </div>
-
+<script type="text/javascript">
+    $(document).ready(function() {
+        $('#message-div').innerWidth($('#message-div').next().innerWidth());
+    })
+</script>
 
 <% include ./partials/footer %>
