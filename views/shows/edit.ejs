@@ -29,8 +29,8 @@
               <!-- <p class="help-block">Upload a poster of this show.</p> -->
             </div>
             <div class="field">
-              <label>Introduction</label>
-              <textarea rows="5" name="show[intro]" id="introduction"><%= show.intro %></textarea>
+              <label>Summary</label>
+              <textarea rows="5" name="show[intro]" id="summary"><%= show.intro %></textarea>
               <small class="form-text text-muted">No longer than 300 characters.</small>
             </div>
             <button class="fluid large ui secondary button" type="submit">Submit</button>
@@ -39,90 +39,14 @@
         <!-- <a href="/back">Go Back</a> -->
     <!-- </div> -->
 </div>
+<script type="text/javascript" src="/js/image-process.js"></script>
 <script type="text/javascript">
-    $(document).ready(function() {
-        var canvas  = $("#canvas"),
-            context = canvas.get(0).getContext("2d"),
-            $result = $('#result'),
-            croppedImageDataURL = null;
-
-        $('.ui.form').form({
-            fields: {
-                introduction: 'maxLength[300]'
-            },
-            onSuccess: function(event, fields) {
-              event.preventDefault();
-              // console.log(this);
-              // append cropped image to the form before submitting
-              var imageInput = $("#image-input").val();
-              if(imageInput == '') {
-                  // if file is not uploaded, do nothing and submit
-                  this.submit();
-              } else {
-                  // if file is uploaded but not cropped, default crop
-                  if($result.is(":hidden") && !croppedImageDataURL) {
-                      croppedImageDataURL = canvas.cropper('getCroppedCanvas').toDataURL('image/jpeg');
-                  }
-                  // create formdata and append cropped image to it
-                  var blob = dataURItoBlob(croppedImageDataURL);
-                  var fd = new FormData(document.forms[0]);
-                  fd.set("image", blob);
-                  this.submit();
-              }
-            }
-        });
-        // crop the image
-        $('#image-input').on('change', function(){
-            if (this.files && this.files[0]) {
-              if ( this.files[0].type.match(/^image\//) ) {
-                  var name = this.files[0].name;
-                  $('label.custom-file-label').text(name);
-                  $('#btnCrop').prop('disabled', false);
-                  var reader = new FileReader();
-                  reader.onload = function(evt) {
-                   var img = new Image();
-                   img.onload = function() {
-                     context.canvas.height = img.height;
-                     context.canvas.width  = img.width;
-                     context.drawImage(img, 0, 0);
-                     var cropper = canvas.cropper({
-                       aspectRatio: 25 / 37
-                     });
-                     $('#btnCrop').click(function() {
-                        // Get a string base 64 data url
-                        croppedImageDataURL = canvas.cropper('getCroppedCanvas').toDataURL('image/jpeg');
-                        $result.show();
-                        $result.attr('src', croppedImageDataURL);
-                        // console.log(croppedImageDataURL);
-                     });
-                     // $('#btnRestore').click(function() {
-                     //   canvas.cropper('reset');
-                     //   $result.empty();
-                     // });
-                   };
-                   img.src = evt.target.result;
-        				};
-                reader.readAsDataURL(this.files[0]);
-              }
-              else {
-                alert("Invalid file type! Please select an image file.");
-              }
-            }
-            else {
-              alert('No file(s) selected.');
-            }
-        });
-
-        function dataURItoBlob(dataURI) {
-            // convert base64/URLEncoded data component to raw binary data held in a string
-            var byteString = atob(dataURI.split(',')[1]);
-
-            // write the bytes of the string to a typed array
-            var ia = new Uint8Array(byteString.length);
-            for (var i = 0; i < byteString.length; i++) {
-                ia[i] = byteString.charCodeAt(i);
-            }
-            return new Blob([ia], {type:'image/jpeg'});
+    $('.ui.form').form({
+        fields: {
+            summary: 'maxLength[300]'
+        },
+        onSuccess: function(event, fields) {
+            validationCallback(event, this);
         }
     });
 </script>

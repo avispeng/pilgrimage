@@ -22,13 +22,25 @@ cloudinary.config({
 });
 
 router.get("/shows", function(req, res) {
-    Show.find({}, function(err, shows) {
-        if(err) {
-            req.flash("error", err.message);
-            res.redirect("/shows");
-        } else {
-            res.render("shows/index", {headline: "Popular Shows", shows: shows, title: "Shows - Pilgrimage"});
-        }
+    var perPage = 16;
+    var pageQuery = parseInt(req.query.page);
+    var pageNumber = pageQuery ? pageQuery : 1;
+
+    Show.find({}).skip((perPage * pageNumber) - perPage).limit(perPage).exec(function(err, shows) {
+        Show.countDocuments().exec(function(err, count) {
+            if(err) {
+                req.flash("error", err.message);
+                res.redirect("/shows");
+            } else {
+                res.render("shows/index", {
+                    headline: "All Shows",
+                    shows: shows,
+                    title: "Shows - Pilgrimage",
+                    current: pageNumber,
+                    pages: Math.ceil(count / perPage)
+                });
+            }
+        });
     });
 });
 
@@ -39,6 +51,8 @@ router.get("/shows/new", middlewareObj.isLoggedIn, function(req, res) {
 
 // add a new show
 router.post("/shows", middlewareObj.isLoggedIn, upload.single('image'), function(req, res) {
+    // var isAjaxRequest = req.xhr;
+
     // if(!req.file) {
     //     var targetPath = "public/default-thumbnail.jpg";
     // } else {
@@ -72,25 +86,31 @@ router.post("/shows", middlewareObj.isLoggedIn, upload.single('image'), function
             }
             console.log("show added");
             req.flash("success", "Show added.");
-            res.redirect("/shows/" + show._id);
+            return res.redirect("/shows/" + show._id);
         });
     } else {
+        // console.log(req.file);
+        // console.log(req.body);
+        // return res.status(200).json({url: null});
         console.log(req.file.originalname);
         if(!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
             // console.log("wrong file type");
             req.flash("error", "Invalid file format. Please upload a valid image.");
-            return res.redirect("/shows/new");
+            // return res.redirect("/shows/new");
+            return res.status(200).json({url: null});
         }
         cloudinary.uploader.upload(req.file.path, function(result) {
             req.body.show.imageURL = result.secure_url;
             Show.findOneAndUpdate({'douban': req.body.show.douban}, req.body.show, {upsert: true, new: true}, function(err, show) {
                 if(err) {
                     req.flash("error", err.message);
-                    return res.redirect("/shows/new");
+                    // return res.redirect("/shows/new");
+                    return res.status(200).json({url: null});
                 }
                 console.log("show added");
                 req.flash("success", "Show added.");
-                res.redirect("/shows/" + show._id);
+                return res.status(200).json({url: "/shows/" + show._id});
+                // res.redirect("/shows/" + show._id);
             });
         });
     }
@@ -186,26 +206,31 @@ router.put("/shows/:id", middlewareObj.isLoggedIn, upload.single('image'), funct
         if(!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
             // console.log("wrong file type");
             req.flash("error", "Invalid file format. Please upload a valid image.");
-            return res.redirect("/shows/" + req.params.id + "/edit");
+            return res.status(200).json({url: null});
+            // return res.redirect("/shows/" + req.params.id + "/edit");
         }
         cloudinary.uploader.upload(req.file.path, function(result) {
             req.body.show.imageURL = result.secure_url;
             Show.findByIdAndUpdate(req.params.id, req.body.show, function(err, updated) {
                 if(err) {
                     req.flash("error", err.message);
-                    res.redirect("/shows/" + req.params.id);
+                    // res.redirect("/shows/" + req.params.id);
+                    return res.status(200).json({url: "/shows/" + req.params.id});
                 } else if(!updated) {
                     Show.findOneAndUpdate({douban: show.douban}, req.body.show, {upsert: true, new: true}, function(err, updated) {
                         if(err) {
                             req.flash("error", err.message);
-                            return res.redirect("/shows");
+                            // return res.redirect("/shows");
+                            return res.status(200).json({url: "/shows"});
                         }
                         req.flash("success", "Can't find the show. Created one.");
-                        res.redirect("/shows/" + updated._id);
+                        // res.redirect("/shows/" + updated._id);
+                        return res.status(200).json({url: "/shows/" + updated._id});
                     });
                 } else {
                     req.flash("success", "Show Updated.");
-                    res.redirect("/shows/" + req.params.id);
+                    // res.redirect("/shows/" + req.params.id);
+                    return res.status(200).json({url: "/shows/" + req.params.id});
                 }
             });
         });
