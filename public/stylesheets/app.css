@@ -152,12 +152,18 @@ img {
     max-width: 100%;
 }
 
-#canvas {
-  height: 296px;
-  width: 200px;
+#canvas, #canvasBanner {
   background-color: #ffffff;
   cursor: default;
   border: 1px solid black;
+}
+
+.card-title {
+    text-align: center;
+}
+
+.custom-btn-group-center {
+    text-align: center;
 }
 /*
 main.container {

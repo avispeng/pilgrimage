@@ -6,9 +6,7 @@ $(function(){
         $row.clone().insertBefore( $button );
     });
 
-
-    $('.intro-div').click(function() {
-        $(this).children('p').show();
-        $(this).children('button').hide();
+    $(".summary-btn").click(function() {
+        $(this).parent().parent().parent().find('p').toggle();
     });
 })

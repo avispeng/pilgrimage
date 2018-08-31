@@ -5,6 +5,7 @@ var citySchema = new mongoose.Schema({
     name: String,
     country: String,
     imageURL: String,
+    bannerURL: String,
     intro: String,
     shows: [{
         type: mongoose.Schema.Types.ObjectId,

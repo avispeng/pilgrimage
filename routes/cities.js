@@ -24,13 +24,25 @@ cloudinary.config({
 
 // grid of all cities
 router.get("/cities", function(req, res) {
-    City.find({}, function(err, cities) {
-        if(err) {
-            req.flash("error", err.message);
-            res.redirect("/cities");
-        } else {
-            res.render("cities/index", {headline: "Popular Cities", cities: cities, title: "Cities - Pilgrimage"});
-        }
+    var perPage = 12;
+    var pageQuery = parseInt(req.query.page);
+    var pageNumber = pageQuery ? pageQuery : 1;
+
+    City.find({}).skip((perPage * pageNumber) - perPage).limit(perPage).exec(function(err, cities) {
+        City.countDocuments().exec(function(err, count) {
+            if(err) {
+                req.flash("error", err.message);
+                res.redirect("/cities");
+            } else {
+                res.render("cities/index", {
+                    headline: "All Cities",
+                    cities: cities,
+                    title: "Cities - Pilgrimage",
+                    current: pageNumber,
+                    pages: Math.ceil(count / perPage)
+                });
+            }
+        });
     });
 });
 
@@ -40,7 +52,8 @@ router.get("/cities/new", middlewareObj.isLoggedIn, function(req, res) {
 });
 
 // add a new city
-router.post("/cities", middlewareObj.isLoggedIn, upload.single('image'), function(req, res) {
+router.post("/cities", middlewareObj.isLoggedIn, upload.array('images', 2), function(req, res) {
+    console.log(req.files);
     // code below for local storage
     // if(!req.file) {
     //     var targetPath = "public/default-thumbnail.jpg";
@@ -67,8 +80,9 @@ router.post("/cities", middlewareObj.isLoggedIn, upload.single('image'), functio
     // }
 
     // code below for cloud storage
-    if(!req.file) {
+    if(!req.files || req.files.length == 0) {
         req.body.city.imageURL = "/default-thumbnail.jpg";
+        req.body.city.bannerURL = "/default-thumbnail.jpg";
         var shows = [];
         asyncLoopAddShows(0, req, shows, function() {
             req.body.city.shows = shows;
@@ -83,25 +97,33 @@ router.post("/cities", middlewareObj.isLoggedIn, upload.single('image'), functio
             });
         });
     } else {
-        if(!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+        if(!req.files[0].originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
             // console.log("wrong file type");
             req.flash("error", "Invalid file format. Please upload a valid image.");
-            return res.redirect("/cities/new");
+            // return res.redirect("/cities/new");
+            return res.status(200).json({url: null});
         }
-        cloudinary.uploader.upload(req.file.path, function(result) {
-
+        cloudinary.uploader.upload(req.files[0].path, function(result) {
+            // picture
             req.body.city.imageURL = result.secure_url;
-            var shows = [];
-            asyncLoopAddShows(0, req, shows, function() {
-                req.body.city.shows = shows;
-                City.create(req.body.city, function(err, city) {
-                    if(err) {
-                        req.flash("error", err.message);
-                        return res.redirect("/cities");
-                    }
-                    console.log("shows added");
-                    req.flash("success", "City added.");
-                    res.redirect("/cities/" + city._id);
+            cloudinary.uploader.upload(req.files[1].path, function(resultBanner) {
+                // banner
+                req.body.city.bannerURL = resultBanner.secure_url;
+
+                var shows = [];
+                asyncLoopAddShows(0, req, shows, function() {
+                    req.body.city.shows = shows;
+                    City.create(req.body.city, function(err, city) {
+                        if(err) {
+                            req.flash("error", err.message);
+                            // return res.redirect("/cities");
+                            return res.status(200).json({url: "/cities"});
+                        }
+                        console.log("shows added");
+                        req.flash("success", "City added.");
+                        // res.redirect("/cities/" + city._id);
+                        return res.status(200).json({url: "/cities/" + city._id});
+                    });
                 });
             });
         });
@@ -110,25 +132,47 @@ router.post("/cities", middlewareObj.isLoggedIn, upload.single('image'), functio
 
 // searching results
 router.get("/cities/results", function(req, res) {
+    var perPage = 13;
+    var pageQuery = parseInt(req.query.page);
+    var pageNumber = pageQuery ? pageQuery : 1;
+
     var query = req.query.city;
     if(query && query.length > 0) {
         const regex = new RegExp(escapeRegex(query), 'gi');
-        City.find({name: regex}).populate("shows").exec(function(err, cities) {
-            if(err) {
-                req.flash("error", err.message);
-                res.redirect("/cities");
-            } else {
-                res.render("cities/results", {headline: "Searching Results", cities: cities, title: "Cities - Pilgrimage"});
-            }
+        City.find({name: regex}).skip((perPage * pageNumber) - perPage).limit(perPage).populate("shows").exec(function(err, cities) {
+            City.countDocuments({name: regex}).exec(function(err, count) {
+                if(err) {
+                    req.flash("error", err.message);
+                    res.redirect("/cities");
+                } else {
+                    res.render("cities/results", {
+                        headline: "Searching Results",
+                        cities: cities,
+                        title: "Cities - Pilgrimage",
+                        current: pageNumber,
+                        pages: Math.ceil(count / perPage),
+                        query: query
+                    });
+                }
+            });
         });
     } else {
-        City.find({}).populate("shows").exec(function(err, cities) {
-            if(err) {
-                req.flash("error", err.message);
-                res.redirect("/cities");
-            } else {
-                res.render("cities/results", {headline: "Searching Results", cities: cities, title: "Cities - Pilgrimage"});
-            }
+        City.find({}).skip((perPage * pageNumber) - perPage).limit(perPage).populate("shows").exec(function(err, cities) {
+            City.countDocuments().exec(function(err, count) {
+                if(err) {
+                    req.flash("error", err.message);
+                    res.redirect("/cities");
+                } else {
+                    res.render("cities/results", {
+                        headline: "Searching Results",
+                        cities: cities,
+                        title: "Cities - Pilgrimage",
+                        current: pageNumber,
+                        pages: Math.ceil(count / perPage),
+                        query: query
+                    });
+                }
+            });
         });
     }
 });
@@ -167,11 +211,7 @@ router.get("/cities/:id/edit", middlewareObj.isLoggedIn, function(req, res) {
 });
 
 // update
-router.put("/cities/:id", middlewareObj.isLoggedIn, upload.single('image'), function(req, res) {
-    // can wrap things up in one object in ejs file
-    // if we have more complicated situation
-    // better handle the array and build a new object
-    // var city = ...
+router.put("/cities/:id", middlewareObj.isLoggedIn, upload.array('images', 2), function(req, res) {
     // var city = req.body.city;
     // code below for local storage
     // if(req.file) {
@@ -189,28 +229,36 @@ router.put("/cities/:id", middlewareObj.isLoggedIn, upload.single('image'), func
     //     });
     //     city.imageURL = targetPath.slice(6);
     // }
-    if(req.file) {
-        if(!req.file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+    if(req.files && req.files.length > 0) {
+        if(!req.files[0].originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
             // console.log("wrong file type");
             req.flash("error", "Invalid file format. Please upload a valid image.");
-            return res.redirect("/cities/" + req.params.id + "/edit");
+            return res.status(200).json({url: null});
+            // return res.redirect("/cities/" + req.params.id + "/edit");
         }
-        cloudinary.uploader.upload(req.file.path, function(result) {
+        cloudinary.uploader.upload(req.files[0].path, function(result) {
+            // picture
             req.body.city.imageURL = result.secure_url;
-            var shows = [];
-            asyncLoopAddShows(0, req, shows, function() {
-                if(req.body.addedId) {
-                    req.body.city.shows = req.body.addedId.concat(shows);
-                } else {
-                    req.body.city.shows = shows;
-                }
-                City.findByIdAndUpdate(req.params.id, req.body.city, {upsert: true, new: true}, function(err, updated) {
-                    if(err) {
-                        req.flash("error", err.message);
-                        return res.redirect("/cities/" + req.params.id);
+            cloudinary.uploader.upload(req.files[1].path, function(resultBanner) {
+                // banner
+                req.body.city.bannerURL = resultBanner.secure_url;
+                var shows = [];
+                asyncLoopAddShows(0, req, shows, function() {
+                    if(req.body.addedId) {
+                        req.body.city.shows = req.body.addedId.concat(shows);
+                    } else {
+                        req.body.city.shows = shows;
                     }
-                    req.flash("success", "City Updated.");
-                    res.redirect("/cities/" + req.params.id);
+                    City.findByIdAndUpdate(req.params.id, req.body.city, {upsert: true, new: true}, function(err, updated) {
+                        if(err) {
+                            req.flash("error", err.message);
+                            // return res.redirect("/cities/" + req.params.id);
+                            return res.status(200).json({url: "/cities/" + req.params.id});
+                        }
+                        req.flash("success", "City Updated.");
+                        // res.redirect("/cities/" + req.params.id);
+                        return res.status(200).json({url: "/cities/" + req.params.id});
+                    });
                 });
             });
         });

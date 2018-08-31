@@ -15,13 +15,38 @@
                 <label for="imgURL">Image URL:</label>
                 <input type="text" name="image" placeholder="Image URL" />
             </div> -->
-            <div class="field">
+            <!-- <div class="field">
                 <label for="cityImage">Picture of the City</label>
                 <div class="custom-file">
                   <input type="file" id="cityImage" name="image" accept="image/*" class="custom-file-input">
                   <label class="custom-file-label" for="customFile">Choose file</label>
-                  <!-- <p class="help-block">Upload a good picture of this city.</p> -->
                 </div>
+            </div> -->
+            <div class="field">
+              <label>Picture of the City</label>
+              <div class="custom-file">
+                  <input type="file" name="image" accept="image/*" class="custom-file-input" id="image-input">
+                  <label class="custom-file-label" for="customFile">Choose file</label>
+              </div>
+              <div class="mt-2 d-flex justify-content-center">
+                  <canvas id="canvas" style="height: 200px;width: 300px;">Your browser does not support the HTML5 canvas element.</canvas>
+              </div>
+              <div class="d-flex justify-content-center">
+                  <input type="button" id="btnCrop" value="Crop Photo" class="ui button mt-2" disabled />
+              </div>
+              <div class="mt-2 d-flex justify-content-center">
+                  <img id="result" style="width:300px; height:200px; display:none;"></img>
+              </div>
+              <!-- <label>Banner Picture of the City</label> -->
+              <div class="mt-2 d-flex justify-content-center">
+                  <canvas id="canvasBanner" style="height: 136px;width: 100%;">Your browser does not support the HTML5 canvas element.</canvas>
+              </div>
+              <div class="d-flex justify-content-center">
+                  <input type="button" id="btnCropBanner" value="Crop Banner" class="ui button mt-2" disabled />
+              </div>
+              <div class="mt-2 d-flex justify-content-center">
+                  <img id="resultBanner" style="width:499px; height:136px; display:none;"></img>
+              </div>
             </div>
 
             <div class="field">
@@ -49,20 +74,18 @@
         <!-- <a href="/back">Go Back</a> -->
     <!-- </div> -->
 </div>
+<script type="text/javascript" src="/js/image-process.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
-        $('input:file')
-          .on('change', function(e) {
-            var name = e.target.files[0].name;
-            $('label.custom-file-label').text(name);
-          });
-        $('.ui.form')
-        .form({
-        fields: {
-          cityname: 'empty',
-          country: 'empty',
-          introduction: 'maxLength[250]'
-        }
+        $('.ui.form').form({
+            fields: {
+              cityname: 'empty',
+              country: 'empty',
+              introduction: 'maxLength[250]'
+            },
+            onSuccess: function(event, fields) {
+              validationCallback(event, this);
+            }
         });
     });
 </script>

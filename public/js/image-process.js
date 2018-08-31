@@ -1,8 +1,14 @@
 
-var canvas  = $("#canvas"),
+var canvas = $("#canvas"),
+    canvasBanner = $("#canvasBanner"),
     context = canvas.get(0).getContext("2d"),
+    contextBanner = (canvasBanner.length)? canvasBanner.get(0).getContext("2d") : null,
     $result = $('#result'),
-    croppedImageDataURL = null;
+    $resultBanner = $('#resultBanner');
+    croppedImageDataURL = null,
+    croppedBannerDataURL = null,
+    $btnCrop = $('#btnCrop'),
+    $btnCropBanner = $('#btnCropBanner');
 
 function validationCallback(event, form) {
     event.preventDefault();
@@ -15,15 +21,30 @@ function validationCallback(event, form) {
         form.submit();
     } else {
         console.log("file uploaded");
+
         // if file is uploaded but not cropped, default crop
-        if($result.is(":hidden") && !croppedImageDataURL) {
+        if(!croppedImageDataURL) {
             console.log("no cropping");
             croppedImageDataURL = canvas.cropper('getCroppedCanvas').toDataURL('image/jpeg');
         }
+        if(canvasBanner.length && !croppedBannerDataURL) {
+            croppedBannerDataURL = canvasBanner.cropper('getCroppedCanvas').toDataURL('image/jpeg');
+        }
         // create formdata and append cropped image to it
-        var blob = dataURItoBlob(croppedImageDataURL);
         var fd = new FormData(document.forms[0]);
-        fd.set("image", blob, $('label.custom-file-label').text());
+
+        if(!croppedBannerDataURL) {
+            // for show poster
+            var blob = dataURItoBlob(croppedImageDataURL);
+            fd.set("image", blob, $('label.custom-file-label').text());
+        } else {
+            // for city
+            fd.delete('image');
+            var blob = dataURItoBlob(croppedImageDataURL);
+            fd.append("images", blob, $('label.custom-file-label').text());
+            var blobBanner = dataURItoBlob(croppedBannerDataURL);
+            fd.append("images", blobBanner, 'banner-' + $('label.custom-file-label').text());
+        }
         // console.log($('label.custom-file-label').text());
         // form.submit();
         // use ajax to post dataform
@@ -46,7 +67,10 @@ $('#image-input').on('change', function(){
       if ( this.files[0].type.match(/^image\//) ) {
           var name = this.files[0].name;
           $('label.custom-file-label').text(name);
-          $('#btnCrop').prop('disabled', false);
+          $btnCrop.prop('disabled', false);
+          if($btnCropBanner.length) {
+              $btnCropBanner.prop('disabled', false);
+          }
           var reader = new FileReader();
           reader.onload = function(evt) {
            var img = new Image();
@@ -54,16 +78,45 @@ $('#image-input').on('change', function(){
              context.canvas.height = img.height;
              context.canvas.width  = img.width;
              context.drawImage(img, 0, 0);
-             var cropper = canvas.cropper({
-               aspectRatio: 25 / 37
-             });
-             $('#btnCrop').click(function() {
+             if(contextBanner) {
+                 contextBanner.canvas.height = img.height;
+                 contextBanner.canvas.width  = img.width;
+                 contextBanner.drawImage(img, 0, 0);
+             }
+
+             if(!contextBanner) {
+                 // for show
+                 var cropper = canvas.cropper({
+                   aspectRatio: 25 / 37
+                 });
+             } else {
+                 // for city photo
+                 var cropper = canvas.cropper({
+                   aspectRatio: 3 / 2
+                 });
+                 // for city banner
+                 var cropperBanner = canvasBanner.cropper({
+                     aspectRatio: 3.67 / 1
+                 });
+             }
+
+             $btnCrop.click(function() {
                 // Get a string base 64 data url
                 croppedImageDataURL = canvas.cropper('getCroppedCanvas').toDataURL('image/jpeg');
                 $result.show();
                 $result.attr('src', croppedImageDataURL);
                 // console.log(croppedImageDataURL);
              });
+
+             if($btnCropBanner.length) {
+                 $btnCropBanner.click(function() {
+                    // Get a string base 64 data url
+                    croppedBannerDataURL = canvasBanner.cropper('getCroppedCanvas').toDataURL('image/jpeg');
+                    $resultBanner.show();
+                    $resultBanner.attr('src', croppedBannerDataURL);
+                    // console.log(croppedImageDataURL);
+                 });
+             }
              // $('#btnRestore').click(function() {
              //   canvas.cropper('reset');
              //   $result.empty();

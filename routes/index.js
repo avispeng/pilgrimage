@@ -24,7 +24,7 @@ router.post("/register", function(req, res) {
         }
         passport.authenticate("local")(req, res, function() {
             req.flash("success", "Successfully registered.");
-            res.redirect(req.session.returnTo || req.session.backURL || 'back');
+            res.redirect(req.session.returnTo || req.session.backURL || '/');
             delete req.session.returnTo;
             delete req.session.backURL;
         });
@@ -40,7 +40,7 @@ router.post("/login", passport.authenticate("local", {
     failureRedirect: "/login",
     failureFlash : true
 }), function(req, res) {
-    res.redirect(req.session.returnTo || req.session.backURL || 'back');
+    res.redirect(req.session.returnTo || req.session.backURL || '/');
     delete req.session.returnTo;
     delete req.session.backURL;
 });

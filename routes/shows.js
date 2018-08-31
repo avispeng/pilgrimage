@@ -37,7 +37,8 @@ router.get("/shows", function(req, res) {
                     shows: shows,
                     title: "Shows - Pilgrimage",
                     current: pageNumber,
-                    pages: Math.ceil(count / perPage)
+                    pages: Math.ceil(count / perPage),
+                    query: null
                 });
             }
         });
@@ -119,26 +120,32 @@ router.post("/shows", middlewareObj.isLoggedIn, upload.single('image'), function
 
 // searching results
 router.get("/shows/results", function(req, res) {
+    var perPage = 16;
+    var pageQuery = parseInt(req.query.page);
+    var pageNumber = pageQuery ? pageQuery : 1;
+
     var query = req.query.show;
     if(query && query.length > 0) {
         const regex = new RegExp(escapeRegex(query), 'gi');
-        Show.find({name: regex}, function(err, shows) {
-            if(err) {
-                req.flash("error", err.message);
-                res.redirect("/shows");
-            } else {
-                res.render("shows/index", {headline: "Searching Results", shows: shows, title: "Shows - Pilgrimage"});
-            }
+        Show.find({name: regex}).skip((perPage * pageNumber) - perPage).limit(perPage).exec(function(err, shows) {
+            Show.countDocuments({name: regex}).exec(function(err, count) {
+                if(err) {
+                    req.flash("error", err.message);
+                    res.redirect("/shows");
+                } else {
+                    res.render("shows/index", {
+                        headline: "Searching Results",
+                        shows: shows,
+                        title: "Shows - Pilgrimage",
+                        current: pageNumber,
+                        pages: Math.ceil(count / perPage),
+                        query: query
+                    });
+                }
+            });
         });
     } else {
-        Show.find({}, function(err, shows) {
-            if(err) {
-                req.flash("error", err.message);
-                res.redirect("/shows");
-            } else {
-                res.render("shows/index", {headline: "Searching Results", shows: shows, title: "Shows - Pilgrimage"});
-            }
-        });
+        res.redirect("/shows");
     }
 });
 

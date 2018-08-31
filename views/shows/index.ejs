@@ -23,10 +23,14 @@
                         <div class="card-body">
                             <h3 class="card-title"><%= show.name %></h3>
                             <div class="intro-div">
-                                <p class="max-lines card-text" style="display:none;"><%= show.intro %></p>
-                                <button class=" small ui grey basic button mb-2 mt-2">Display Intro</button>
+                                <p class="max-lines card-text pl-2 pr-2" style="display:none;"><%= show.intro %></p>
+                                <div class="custom-btn-group-center">
+                                    <div class="ui buttons mt-2">
+                                        <button class="small ui grey basic button summary-btn">Summary</button>
+                                        <a href="/shows/<%= show._id %>" class="small ui grey button flimed-in-btn">Filmed in</a>
+                                    </div>
+                                </div>
                             </div>
-                            <a href="/shows/<%= show._id %>" class="small ui grey button flimed-in-btn">Filmed in</a>
                         </div>
                     </div>
                 </div>
@@ -40,13 +44,13 @@
                     <% if (current == 1) { %>
                     <div class="disabled item">First</div>
                     <% } else { %>
-                    <a href="/shows" class="item">First</a>
+                    <a href="/shows<%if(query){%>?show=<%=query%><%}%>" class="item">First</a>
                     <% } %>
 
                     <% if (current == 1) { %>
                     <div class="disabled item">«</div>
                     <% } else { %>
-                    <a class="item" href="/shows?page=<%= Number(current) - 1 %>">«</a>
+                    <a class="item" href="/shows?page=<%= Number(current) - 1 %><%if(query){%>&show=<%=query%><%}%>">«</a>
                     <% } %>
 
                     <% var i = (Number(current) > 5 ? Number(current) - 4 : 1) %>
@@ -57,7 +61,7 @@
                     <% if (i == current) { %>
                     <a class="active item"><%= i %></a>
                     <% } else { %>
-                    <a class="item" href="/shows?page=<%= i %>"><%= i %></a>
+                    <a class="item" href="/shows?page=<%= i %><%if(query){%>&show=<%=query%><%}%>"><%= i %></a>
                     <% } %>
                     <% if (i == Number(current) + 4 && i < pages) { %>
                     <div class="disabled item">...</div>
@@ -67,13 +71,13 @@
                     <% if (current == pages) { %>
                     <div class="disabled item">»</div>
                     <% } else { %>
-                    <a class="item" href="/shows?page=<%= Number(current) + 1 %>">»</a>
+                    <a class="item" href="/shows?page=<%= Number(current) + 1 %><%if(query){%>&show=<%=query%><%}%>">»</a>
                     <% } %>
 
                     <% if (current == pages) { %>
                     <div class="disabled item">Last</div>
                     <% } else { %>
-                    <a class="item" href="/shows?page=<%= pages %>">Last</a>
+                    <a class="item" href="/shows?page=<%= pages %><%if(query){%>&show=<%=query%><%}%>">Last</a>
                     <% } %>
                 <!-- </ul> -->
                 <% } %>
