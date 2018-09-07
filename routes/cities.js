@@ -5,6 +5,7 @@ var multer = require('multer');
 var City = require("../models/city"),
     Show = require("../models/show");
 var middlewareObj = require("../middleware");
+var Promise = require("bluebird");
 
 // var upload = multer({ dest: 'tmp/' });
 
@@ -22,20 +23,34 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+var views = {};
+
+function updateViews() {
+    var toUpdate = views;
+    views = {};
+    Promise.map(Object.keys(toUpdate), function(id) {
+        City.findByIdAndUpdate(id, {$inc : {'views' : toUpdate[id]}}, {new: true}).exec(function(err, updated) {
+            console.log(id + " city updated to " + updated['views']);
+        });
+    });
+}
+
+var timer = setInterval(updateViews, 3600000);
+
 // grid of all cities
 router.get("/cities", function(req, res) {
     var perPage = 12;
     var pageQuery = parseInt(req.query.page);
     var pageNumber = pageQuery ? pageQuery : 1;
 
-    City.find({}).skip((perPage * pageNumber) - perPage).limit(perPage).exec(function(err, cities) {
+    City.find({}).sort({views: -1}).skip((perPage * pageNumber) - perPage).limit(perPage).exec(function(err, cities) {
         City.countDocuments().exec(function(err, count) {
             if(err) {
                 req.flash("error", err.message);
                 res.redirect("/cities");
             } else {
                 res.render("cities/index", {
-                    headline: "All Cities",
+                    headline: "Popular Cities",
                     cities: cities,
                     title: "Cities - Pilgrimage",
                     current: pageNumber,
@@ -180,7 +195,7 @@ router.get("/cities/results", function(req, res) {
 // detail page of one city (shows that've been shot there)
 router.get("/cities/:id", function(req, res) {
     // var id = req.params.id;
-    City.findById(req.params.id).populate("shows").exec(function(err, found) {
+    City.findById(req.params.id).populate({ path: 'shows', options: { sort: { views: -1 } } }).exec(function(err, found) {
         if(err) {
             req.flash("error", err.message);
             res.redirect("back");
@@ -190,6 +205,8 @@ router.get("/cities/:id", function(req, res) {
             res.redirect("/cities");
         } else {
             res.render("cities/detail", {city: found, title: found.name + " - Pilgrimage"});
+            views[req.params.id] = (views[req.params.id] || 0) + 1; // increase page views
+            console.log(req.params.id + ": " + views[req.params.id]);
         }
     });
 });

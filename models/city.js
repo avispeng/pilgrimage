@@ -7,6 +7,7 @@ var citySchema = new mongoose.Schema({
     imageURL: String,
     bannerURL: String,
     intro: String,
+    views: Number,
     shows: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: "Show"

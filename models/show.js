@@ -5,6 +5,7 @@ var showSchema = new mongoose.Schema({
     douban: String,
     intro: String,
     imageURL: String,
+    views: Number
 });
 
 module.exports = mongoose.model("Show", showSchema);

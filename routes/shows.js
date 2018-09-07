@@ -5,6 +5,10 @@ var City = require("../models/city"),
 var fs = require('fs');
 var multer = require('multer');
 var middlewareObj = require("../middleware");
+var Promise = require("bluebird");
+// var AsyncLock = require('async-lock');
+// var lock = new AsyncLock();
+
 // var upload = multer({ dest: 'tmp/' });
 
 var storage = multer.diskStorage({
@@ -21,19 +25,34 @@ cloudinary.config({
   api_secret: process.env.CLOUDINARY_API_SECRET
 });
 
+var views = {};
+
+function updateViews() {
+    var toUpdate = views;
+    views = {};
+    // use bluebird here to apply update parallely and asynchronously so that event loop won't be blocked
+    Promise.map(Object.keys(toUpdate), function(id) {
+        Show.findByIdAndUpdate(id, {$inc : {'views' : toUpdate[id]}}, {new: true}).exec(function(err, updated) {
+            console.log(id + " show updated to " + updated['views']);
+        });
+    });
+}
+
+var timer = setInterval(updateViews, 3600000);
+
 router.get("/shows", function(req, res) {
     var perPage = 16;
     var pageQuery = parseInt(req.query.page);
     var pageNumber = pageQuery ? pageQuery : 1;
 
-    Show.find({}).skip((perPage * pageNumber) - perPage).limit(perPage).exec(function(err, shows) {
+    Show.find({}).sort({views: -1}).skip((perPage * pageNumber) - perPage).limit(perPage).exec(function(err, shows) {
         Show.countDocuments().exec(function(err, count) {
             if(err) {
                 req.flash("error", err.message);
                 res.redirect("/shows");
             } else {
                 res.render("shows/index", {
-                    headline: "All Shows",
+                    headline: "Popular Shows",
                     shows: shows,
                     title: "Shows - Pilgrimage",
                     current: pageNumber,
@@ -160,8 +179,10 @@ router.get("/shows/:id", function(req, res) {
             req.flash("error", "Can't find the show.");
             res.redirect("/shows");
         } else {
+            views[req.params.id] = (views[req.params.id] || 0) + 1; // increase page views
+            console.log(req.params.id + ": " + views[req.params.id]);
             // find all cities where this show is shot.
-            City.find({shows: req.params.id}).exec(function(err, cities) {
+            City.find({shows: req.params.id}).sort({views: -1}).exec(function(err, cities) {
                 if(err) {
                     req.flash("error", err.message);
                     return res.redirect('back');
