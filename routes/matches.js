@@ -37,10 +37,10 @@ router.get("/cities/:cityId/shows/:showId", function(req, res) {
             req.flash("error", err.message);
             res.redirect("back");
         } else if(matches && matches.length > 0) {
-            res.render("matches/list", {title: matches[0].showName + " - " + matches[0].cityName,
+            res.render("matches/list", {title: matches[0].showName + " at " + matches[0].cityName + " - Pilgrimage",
             matches: matches, showId: req.params.showId, cityId: req.params.cityId});
         } else {
-            res.render("matches/list", {title: "Nothing Found.", matches: null, showId: req.params.showId, cityId: req.params.cityId});
+            res.render("matches/list", {title: "Nothing Found - Pilgrimage", matches: null, showId: req.params.showId, cityId: req.params.cityId});
         }
     });
 });
@@ -154,7 +154,7 @@ router.get("/cities/:cityId/shows/:showId/new", middlewareObj.isLoggedIn, functi
                 req.flash("error", "Can't find the show.");
                 return res.redirect("/cities/" + req.params.cityId);
             }
-            return res.render("matches/new", {title: "New", city: city, show: show});
+            return res.render("matches/new", {title: "New - Pilgrimage", city: city, show: show});
         });
     });
     // City.findById(req.params.cityId, function(err, city) {
@@ -188,7 +188,7 @@ router.get("/matches/:id/cityPhoto", function(req, res) {
             req.flash("error", "Can't find the Record.");
             return res.redirect("back");
         }
-        res.render("matches/image", {title: "City Photo", imageURL: found.cityPhoto});
+        res.render("matches/image", {title: "City Photo - Pilgrimage", imageURL: found.cityPhoto});
     });
 });
 
@@ -201,7 +201,7 @@ router.get("/matches/:id/showScreenshot", function(req, res) {
             req.flash("error", "Can't find the Record.");
             return res.redirect("back");
         }
-        res.render("matches/image", {title: "Show Screenshot", imageURL: found.showScreenshot});
+        res.render("matches/image", {title: "Show Screenshot - Pilgrimage", imageURL: found.showScreenshot});
     });
 });
 
@@ -214,7 +214,7 @@ router.get("/matches/:id/map", function(req, res) {
             req.flash("error", "Can't find the Record.");
             return res.redirect("back");
         }
-        res.render("matches/map", {title: "Map", match: found});
+        res.render("matches/map", {title: "Map - Pilgrimage", match: found});
     });
 });
 

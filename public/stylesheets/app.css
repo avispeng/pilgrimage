@@ -1,3 +1,16 @@
+body {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
+    /* background-color: #4e607c; */
+    /* background-size: 100% 100%;
+    background-image: url('../Mystic.jpg'); */
+}
+
+.site-content {
+  flex: 1;
+}
+
 ul {
   list-style-type: none;
 }
@@ -27,7 +40,10 @@ hr.style-six {
 }
 
 .new-form {
-    width: 35%;
+    width: 40%;
+    border-radius: 4px;
+    padding: 30px 20px;
+    background: white;
 }
 
 .addable, .added {
@@ -165,6 +181,11 @@ img {
 .custom-btn-group-center {
     text-align: center;
 }
+
+/* .page-footer {
+    position: absolute;
+    bottom: 0px;
+} */
 /*
 main.container {
     width: 100%;

@@ -1,5 +1,5 @@
 <% include ../partials/header %>
-<div class="container new-form">
+<div class="container new-form site-content">
     <!-- <div class="row"> -->
         <h1>Add a New Record for <%= show.name %> - <%= city.name %></h1>
         <form action="/cities/<%= city._id %>/shows/<%= show._id %>" method="post" enctype="multipart/form-data">
@@ -37,4 +37,7 @@
         <!-- <a href="/back">Go Back</a> -->
     <!-- </div> -->
 </div>
+<script type="text/javascript">
+    $('body').css('background-image', 'url("https://res.cloudinary.com/doetad8xo/image/upload/v1536453178/Mystic.png")').css('background-size', 'cover');
+</script>
 <% include ../partials/footer %>

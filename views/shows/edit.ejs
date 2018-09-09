@@ -1,5 +1,5 @@
 <% include ../partials/header %>
-<div class="container new-form">
+<div class="container new-form site-content">
     <!-- <div class="row"> -->
         <h1 class="mb-3">Edit <%= show.name %></h1>
         <form action="/shows/<%= show._id %>?_method=PUT" method="post" enctype="multipart/form-data" class="ui form">
@@ -34,20 +34,23 @@
               <small class="form-text text-muted">No longer than 300 characters.</small>
             </div>
             <button class="fluid large ui secondary button" type="submit">Submit</button>
-            <div class="ui error message">
+            <div class="ui error message"></div>
         </form>
         <!-- <a href="/back">Go Back</a> -->
     <!-- </div> -->
 </div>
 <script type="text/javascript" src="/js/image-process.js"></script>
 <script type="text/javascript">
-    $('.ui.form').form({
-        fields: {
-            summary: 'maxLength[300]'
-        },
-        onSuccess: function(event, fields) {
-            validationCallback(event, this);
-        }
-    });
+    // $(document).ready(function() {
+        $('body').css('background-image', 'url("https://res.cloudinary.com/doetad8xo/image/upload/v1536453178/Mystic.png")').css('background-size', 'cover');
+        $('.ui.form').form({
+            fields: {
+                summary: 'maxLength[300]'
+            },
+            onSuccess: function(event, fields) {
+                validationCallback(event, this);
+            }
+        });
+    // });
 </script>
 <% include ../partials/footer %>

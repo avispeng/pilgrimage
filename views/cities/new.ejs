@@ -1,5 +1,6 @@
 <% include ../partials/header %>
-<div class="container new-form">
+
+<div class="container new-form site-content">
     <!-- <div class="row"> -->
         <h1 class="mb-3">Add a New City</h1>
         <form action="/cities" class="ui form" method="post" enctype="multipart/form-data">
@@ -69,7 +70,7 @@
             </div>
 
             <button class="fluid large ui secondary button" type="submit">Submit</button>
-            <div class="ui error message">
+            <div class="ui error message"></div>
         </form>
         <!-- <a href="/back">Go Back</a> -->
     <!-- </div> -->
@@ -77,6 +78,7 @@
 <script type="text/javascript" src="/js/image-process.js"></script>
 <script type="text/javascript">
     $(document).ready(function() {
+        $('body').css('background-image', 'url("https://res.cloudinary.com/doetad8xo/image/upload/v1536453178/Mystic.png")').css('background-size', 'cover');
         $('.ui.form').form({
             fields: {
               cityname: 'empty',

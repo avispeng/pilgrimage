@@ -1,5 +1,6 @@
 <% include ./partials/header %>
-<div class="container w-50">
+<div class="container site-content">
+    <div class="new-form mx-auto">
     <!-- <form action="/register" method="post">
       <div class="form-group">
         <label for="exampleInputText">Username</label>
@@ -41,11 +42,13 @@
         </div>
       </div>
       <button class="fluid ui button" type="submit">Sign Up</button>
-      <div class="ui error message">
+      <div class="ui error message"></div>
     </form>
+    </div>
 </div>
 <script>
 $(document).ready(function(){
+    $('body').css('background-image', 'url("https://res.cloudinary.com/doetad8xo/image/upload/v1536453178/Mystic.png")').css('background-size', 'cover');
     $('#message-div').innerWidth($('#message-div').next().innerWidth());
     $('.ui.form')
       .form({

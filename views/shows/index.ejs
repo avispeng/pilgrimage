@@ -1,7 +1,7 @@
 <% include ../partials/header %>
 
-<div class="container">
-    <header class="jumbotron">
+<div class="container site-content">
+    <header class="jumbotron" style="background-image: url('https://res.cloudinary.com/doetad8xo/image/upload/v1536453178/show-banner-cut.png'); background-size: 100% 100%;">
         <div class="container">
             <h1>Search for the Show</h1>
             <form class="form-inline mt-3" action="/shows/results" method="get">
@@ -36,10 +36,11 @@
                 </div>
         <% }); %>
     </div>
+    <% if (pages && pages > 0) { %>
     <div class="ui centered grid mt-3">
         <div class="center aligned column">
             <div class="ui pagination menu">
-                <% if (pages && pages > 0) { %>
+
                 <!-- <ul class="pagination justify-content-center"> -->
                     <% if (current == 1) { %>
                     <div class="disabled item">First</div>
@@ -80,9 +81,10 @@
                     <a class="item" href="/shows?page=<%= pages %><%if(query){%>&show=<%=query%><%}%>">Last</a>
                     <% } %>
                 <!-- </ul> -->
-                <% } %>
+
             </div>
         </div>
     </div>
+    <% } %>
 </div>
 <% include ../partials/footer %>
